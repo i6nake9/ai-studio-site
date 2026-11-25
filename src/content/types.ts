@@ -173,8 +173,11 @@ export interface Dictionary {
       name: { label: string; placeholder: string };
       business: { label: string; placeholder: string };
       email: { label: string; placeholder: string };
-      contact: { label: string; placeholder: string };
+      /** Optional field. */
+      telegram: { label: string; placeholder: string };
     };
+    /** Text next to the newsletter box. Stored with the lead as the wording agreed to. */
+    newsletter: string;
     required: string;
     /** Shown under the e-mail field when the address has a typo. */
     invalidEmail: string;
@@ -187,7 +190,11 @@ export interface Dictionary {
     dialogText: string;
     dialogClose: string;
     roiAttached: string;
-    sent: TitledText;
+    sent: TitledText & {
+      /** Shown instead of `text` when the lead can be continued in the studio bot. */
+      textTelegram: string;
+      openTelegram: string;
+    };
     /** Shown instead of the form while no contact channel is configured. */
     notReady: TitledText;
     fallback: {

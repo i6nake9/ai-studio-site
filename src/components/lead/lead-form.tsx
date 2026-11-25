@@ -4,30 +4,32 @@ import { type FormEvent, useEffect, useId, useRef, useState } from "react";
 
 import { ctaPrimary, ctaSecondary } from "@/components/cta";
 import { uk } from "@/content/uk";
-import { channels, telegramNick } from "@/lib/contacts";
+import { channels, telegramUrl } from "@/lib/contacts";
 import {
   FIELD_LIMITS,
   type FieldErrors,
   type LeadFields,
   type LeadRoi,
+  leadPayload,
   mailtoLink,
   prepareLead,
   submitLead,
-  telegramLink,
 } from "@/lib/lead";
 import { cn } from "@/lib/utils";
 
 import { siteConfig } from "../../../site.config";
 
 const t = uk.lead;
-const FIELDS = ["name", "business", "email", "contact"] as const;
-const AUTOCOMPLETE = { name: "name", business: "organization", email: "email", contact: "off" } as const;
-const EMPTY: LeadFields = { name: "", business: "", email: "", contact: "" };
+const FIELDS = ["name", "business", "email", "telegram"] as const;
+const OPTIONAL: ReadonlySet<string> = new Set(["telegram"]);
+const AUTOCOMPLETE = { name: "name", business: "organization", email: "email", telegram: "off" } as const;
+const EMPTY: LeadFields = { name: "", business: "", email: "", telegram: "" };
 
 type Screen =
   | { kind: "form" }
   | { kind: "submitting" }
-  | { kind: "sent" }
+  /** `telegram` opens the studio bot with this lead already attached. */
+  | { kind: "sent"; telegram: string | null }
   | { kind: "fallback"; message: string };
 
 type CopyState = "idle" | "copied" | "failed";
@@ -43,6 +45,8 @@ interface LeadFormProps {
 export function LeadForm({ roi, onSent }: LeadFormProps) {
   const id = useId();
   const [fields, setFields] = useState<LeadFields>(EMPTY);
+  // Unticked by default: a newsletter needs a consent the visitor gives on their own.
+  const [newsletter, setNewsletter] = useState(false);
   const [trap, setTrap] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [screen, setScreen] = useState<Screen>({ kind: "form" });
@@ -63,7 +67,7 @@ export function LeadForm({ roi, onSent }: LeadFormProps) {
     event.preventDefault();
     if (screen.kind === "submitting") return;
 
-    const prepared = prepareLead(fields, trap, siteConfig.brand, roi);
+    const prepared = prepareLead(fields, trap, siteConfig.brand, roi, newsletter);
     if (prepared.status === "invalid") {
       setErrors(prepared.errors);
       const first = FIELDS.find((field) => prepared.errors[field]);
@@ -83,13 +87,17 @@ export function LeadForm({ roi, onSent }: LeadFormProps) {
       return;
     }
     setScreen({ kind: "submitting" });
-    const outcome = await submitLead(siteConfig.leadEndpoint, {
-      ...prepared.lead,
-      message: prepared.message,
-      roi: roi ?? null,
-    });
-    if (outcome === "sent") {
-      setScreen({ kind: "sent" });
+    const outcome = await submitLead(
+      siteConfig.leadEndpoint,
+      leadPayload(prepared.lead, {
+        newsletter,
+        consentText: t.newsletter,
+        page: window.location.pathname,
+        roi,
+      }),
+    );
+    if (outcome.status === "sent") {
+      setScreen({ kind: "sent", telegram: outcome.telegram });
       onSent?.();
     } else {
       setScreen({ kind: "fallback", message: prepared.message });
@@ -130,14 +138,27 @@ export function LeadForm({ roi, onSent }: LeadFormProps) {
         >
           {t.sent.title}
         </h3>
-        <p className="mt-3 text-muted-foreground">{t.sent.text}</p>
+        <p className="mt-3 text-muted-foreground">
+          {screen.telegram ? t.sent.textTelegram : t.sent.text}
+        </p>
+        {screen.telegram ? (
+          <a
+            href={screen.telegram}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(ctaPrimary, "mt-5 w-full")}
+          >
+            {t.sent.openTelegram}
+          </a>
+        ) : null}
       </div>
     );
   }
 
   if (screen.kind === "fallback") {
     const { message } = screen;
-    const telegram = telegramLink(telegramNick, message);
+    // The bot cannot be opened with a ready text, so the visitor copies it.
+    const telegram = telegramUrl;
     const mail = mailtoLink(siteConfig.email, t.fallback.emailSubject, message);
     return (
       <div>
@@ -164,23 +185,19 @@ export function LeadForm({ roi, onSent }: LeadFormProps) {
         </pre>
 
         <div className="mt-5 flex flex-col gap-3">
+          <button type="button" onClick={() => copyMessage(message)} className={ctaPrimary}>
+            {copy === "copied" ? t.fallback.copied : t.fallback.copy}
+          </button>
           {telegram ? (
             <a
               href={telegram}
               target="_blank"
               rel="noopener noreferrer"
-              className={ctaPrimary}
+              className={ctaSecondary}
             >
               {t.fallback.openTelegram}
             </a>
           ) : null}
-          <button
-            type="button"
-            onClick={() => copyMessage(message)}
-            className={telegram ? ctaSecondary : ctaPrimary}
-          >
-            {copy === "copied" ? t.fallback.copied : t.fallback.copy}
-          </button>
           {mail ? (
             <a href={mail} className={ctaSecondary}>
               {t.fallback.email}
@@ -229,7 +246,7 @@ export function LeadForm({ roi, onSent }: LeadFormProps) {
               maxLength={FIELD_LIMITS[field]}
               placeholder={t.fields[field].placeholder}
               value={fields[field]}
-              required
+              required={!OPTIONAL.has(field)}
               aria-invalid={error ? true : undefined}
               aria-describedby={error ? `${inputId}-error` : undefined}
               onChange={(event) => {
@@ -264,6 +281,17 @@ export function LeadForm({ roi, onSent }: LeadFormProps) {
           />
         </label>
       </div>
+
+      <label className="flex min-h-11 cursor-pointer items-start gap-3 text-[0.9375rem] leading-snug text-muted-foreground">
+        <input
+          type="checkbox"
+          name="newsletter"
+          checked={newsletter}
+          onChange={(event) => setNewsletter(event.target.checked)}
+          className="mt-0.5 size-5 shrink-0 cursor-pointer accent-signal"
+        />
+        <span>{t.newsletter}</span>
+      </label>
 
       {roi ? <p className="text-sm text-signal">{t.roiAttached}</p> : null}
 

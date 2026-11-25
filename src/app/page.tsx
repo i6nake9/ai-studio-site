@@ -17,7 +17,7 @@ import { Trust } from "@/components/sections/trust";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { uk } from "@/content/uk";
-import { telegramUrl } from "@/lib/contacts";
+import { telegramProfileUrl } from "@/lib/contacts";
 import { pageMeta } from "@/lib/page-meta";
 import { faqJsonLd, organizationJsonLd, pageUrl } from "@/lib/seo";
 
@@ -35,7 +35,7 @@ export default function HomePage() {
           url: home,
           description: uk.meta.description,
           logo: `${siteConfig.siteUrl}/og.png`,
-          telegramUrl,
+          telegramUrl: telegramProfileUrl,
           email: siteConfig.email,
         })}
       />

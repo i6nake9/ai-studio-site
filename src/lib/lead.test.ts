@@ -2,8 +2,10 @@ import { expect, test } from "vitest";
 
 import { calculateRoi } from "./calculator";
 import {
+  botLink,
   buildLeadMessage,
   leadChannels,
+  leadPayload,
   mailtoLink,
   normalizeLead,
   normalizeTelegramNick,
@@ -14,7 +16,7 @@ import {
 } from "./lead";
 
 const plain = (s: string) => s.replace(/[  ]/g, " ");
-const lead = { name: "Олена", business: "shop.ua", email: "olena@shop.ua", contact: "@olena" };
+const lead = { name: "Олена", business: "shop.ua", email: "olena@shop.ua", telegram: "@olena" };
 
 test("normalizeLead trims, flattens line breaks and cuts to the field limit", () => {
   expect(
@@ -22,23 +24,26 @@ test("normalizeLead trims, flattens line breaks and cuts to the field limit", ()
       name: "  Олена\n Коваль ",
       business: "x".repeat(500),
       email: " Olena@Shop.ua\n",
-      contact: " @olena ",
+      telegram: " @olena ",
     }),
   ).toEqual({
     name: "Олена Коваль",
     business: "x".repeat(200),
     email: "Olena@Shop.ua",
-    contact: "@olena",
+    telegram: "@olena",
   });
 });
 
 test("empty and whitespace-only fields are reported as required", () => {
-  expect(validateLead({ name: " ", business: "", email: " ", contact: "\n" })).toEqual({
+  expect(validateLead({ name: " ", business: "", email: " ", telegram: "\n" })).toEqual({
     name: "required",
     business: "required",
     email: "required",
-    contact: "required",
   });
+});
+
+test("Telegram is optional: a lead without it has no errors", () => {
+  expect(validateLead({ ...lead, telegram: "" })).toEqual({});
 });
 
 test("an e-mail that cannot be an address is reported as invalid", () => {
@@ -56,8 +61,16 @@ test("a filled lead has no errors", () => {
 
 test("lead message without a calculation", () => {
   expect(buildLeadMessage(lead, "Nerutyna")).toBe(
-    "Заявка на аудит з сайту Nerutyna\nІм'я: Олена\nСайт або ніша: shop.ua\nE-mail: olena@shop.ua\nКонтакт: @olena",
+    "Заявка на аудит з сайту Nerutyna\nІм'я: Олена\nСайт або ніша: shop.ua\nE-mail: olena@shop.ua\nTelegram: @olena",
   );
+});
+
+test("lead message has no Telegram line without a nick, and says when the newsletter was agreed to", () => {
+  expect(buildLeadMessage({ ...lead, telegram: "" }, "Nerutyna")).toBe(
+    "Заявка на аудит з сайту Nerutyna\nІм'я: Олена\nСайт або ніша: shop.ua\nE-mail: olena@shop.ua",
+  );
+  expect(buildLeadMessage(lead, "Nerutyna", undefined, true).split("\n").at(-1)).toBe("Розсилка: так");
+  expect(buildLeadMessage(lead, "Nerutyna", undefined, false)).not.toMatch(/Розсилка/);
 });
 
 test("lead message carries the calculator numbers", () => {
@@ -123,6 +136,12 @@ test("no Telegram link without a valid username", () => {
   expect(telegramLink(null, "x")).toBeNull();
 });
 
+test("a bot link carries a label of where the person came from", () => {
+  expect(botLink("Nerutyna_ai", "site")).toBe("https://t.me/Nerutyna_ai?start=site");
+  expect(botLink("Nerutyna_ai", "bad label!")).toBe("https://t.me/Nerutyna_ai");
+  expect(botLink(null, "site")).toBeNull();
+});
+
 test("Telegram link without text is the plain profile link", () => {
   expect(telegramLink("nerutyna")).toBe("https://t.me/nerutyna");
 });
@@ -153,7 +172,7 @@ test("without an endpoint the lead goes to the fallback path", async () => {
     called = true;
     return new Response("");
   });
-  expect(outcome).toBe("fallback");
+  expect(outcome).toEqual({ status: "fallback" });
   expect(called).toBe(false);
 });
 
@@ -167,8 +186,25 @@ test("a 2xx answer from the endpoint means sent", async () => {
       return new Response("", { status: 201 });
     },
   );
-  expect(outcome).toBe("sent");
+  expect(outcome).toEqual({ status: "sent", telegram: null });
   expect(JSON.parse(body)).toEqual({ name: "Олена" });
+});
+
+test("the server's link to continue in Telegram is passed on, anything else is dropped", async () => {
+  const answer = (body: string) =>
+    submitLead("https://example.test/lead", {}, async () => new Response(body, { status: 200 }));
+  expect(await answer('{"ok":true,"telegram":"https://t.me/Studio_bot?start=l_aB-9_x"}')).toEqual({
+    status: "sent",
+    telegram: "https://t.me/Studio_bot?start=l_aB-9_x",
+  });
+  for (const body of [
+    '{"ok":true,"telegram":"https://evil.example/?start=l_x"}',
+    '{"ok":true,"telegram":"javascript:alert(1)"}',
+    '{"ok":true,"telegram":5}',
+    "not json",
+  ]) {
+    expect(await answer(body), body).toEqual({ status: "sent", telegram: null });
+  }
 });
 
 test("a non-2xx answer falls back instead of claiming success", async () => {
@@ -176,7 +212,7 @@ test("a non-2xx answer falls back instead of claiming success", async () => {
     await submitLead("https://example.test/lead", {}, async () =>
       new Response("", { status: 500 }),
     ),
-  ).toBe("fallback");
+  ).toEqual({ status: "fallback" });
 });
 
 test("a network error falls back without throwing", async () => {
@@ -184,7 +220,7 @@ test("a network error falls back without throwing", async () => {
     await submitLead("https://example.test/lead", {}, async () => {
       throw new Error("offline");
     }),
-  ).toBe("fallback");
+  ).toEqual({ status: "fallback" });
 });
 
 test("an endpoint that never answers falls back after the timeout", async () => {
@@ -192,15 +228,15 @@ test("an endpoint that never answers falls back after the timeout", async () => 
     new Promise((_resolve, reject) => {
       init?.signal?.addEventListener("abort", () => reject(new Error("aborted")));
     });
-  expect(await submitLead("https://example.test/lead", {}, never, 20)).toBe(
-    "fallback",
-  );
+  expect(await submitLead("https://example.test/lead", {}, never, 20)).toEqual({
+    status: "fallback",
+  });
 });
 
 test("prepareLead reports every empty field and builds no message", () => {
-  expect(prepareLead({ name: " ", business: "", email: "x", contact: "\n" }, "", "Nerutyna")).toEqual({
+  expect(prepareLead({ name: " ", business: "", email: "x", telegram: "\n" }, "", "Nerutyna")).toEqual({
     status: "invalid",
-    errors: { name: "required", business: "required", email: "invalid", contact: "required" },
+    errors: { name: "required", business: "required", email: "invalid" },
   });
 });
 
@@ -259,4 +295,33 @@ test("the lead message calls the yearly figure the value of freed time, not a sa
   const message = buildLeadMessage(lead, "Nerutyna", { input, result: calculateRoi(input) });
   expect(message).toMatch(/вартість вивільненого часу/);
   expect(message).not.toMatch(/економія/i);
+});
+
+test("what goes to the server: cleaned fields, the consent with its wording, the page and the calculation line", () => {
+  const input = { employees: 5, monthlyCost: 700, routinePercent: 40, currency: "USD" as const, uahPerUsd: 45 };
+  const roi = { input, result: calculateRoi(input) };
+  const payload = leadPayload({ ...lead, name: " Олена " }, {
+    newsletter: true,
+    consentText: "Надсилайте мені матеріали",
+    page: "/poslugy/ttn-prom-avtomatychnyi-druk/",
+    roi,
+  });
+  expect(payload).toMatchObject({
+    name: "Олена",
+    business: "shop.ua",
+    email: "olena@shop.ua",
+    telegram: "@olena",
+    newsletter: true,
+    consentText: "Надсилайте мені матеріали",
+    page: "/poslugy/ttn-prom-avtomatychnyi-druk/",
+  });
+  expect(payload.roi).toMatch(/^Розрахунок: 5 співробітників/);
+});
+
+test("without consent the wording is not sent, and without a calculation the line is empty", () => {
+  expect(leadPayload(lead, { newsletter: false, consentText: "Надсилайте", page: "/" })).toMatchObject({
+    newsletter: false,
+    consentText: "",
+    roi: "",
+  });
 });

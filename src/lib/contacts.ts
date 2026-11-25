@@ -1,11 +1,14 @@
 import { siteConfig } from "../../site.config";
-import { leadChannels, normalizeTelegramNick, telegramLink } from "./lead";
+import { botLink, leadChannels, normalizeTelegramNick, telegramLink } from "./lead";
 
 /** Telegram username from the config, or null while it is empty or malformed. */
 export const telegramNick = normalizeTelegramNick(siteConfig.telegram);
 
-/** Link to the Telegram chat, or null: then no Telegram button may be rendered. */
-export const telegramUrl = telegramLink(telegramNick);
+/** Link that opens the studio bot, or null: then no Telegram button may be rendered. */
+export const telegramUrl = botLink(telegramNick, "site");
+
+/** The bot's plain address, for structured data. */
+export const telegramProfileUrl = telegramLink(telegramNick);
 
 /** Ways a lead can reach the studio; with none, the form shows a notice instead. */
 export const channels = leadChannels(siteConfig);

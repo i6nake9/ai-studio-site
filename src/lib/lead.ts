@@ -7,8 +7,8 @@ export interface LeadFields {
   business: string;
   /** Where the audit summary is sent. */
   email: string;
-  /** Telegram username or phone number. */
-  contact: string;
+  /** Telegram username. Optional: the talk can also go on in the studio bot or by e-mail. */
+  telegram: string;
 }
 
 export interface LeadRoi {
@@ -16,11 +16,11 @@ export interface LeadRoi {
   result: RoiResult;
 }
 
-export const FIELD_LIMITS = { name: 100, business: 200, email: 120, contact: 100 } as const;
+export const FIELD_LIMITS = { name: 100, business: 200, email: 120, telegram: 100 } as const;
 
 export type FieldErrors = Partial<Record<keyof LeadFields, "required" | "invalid">>;
 
-const FIELDS = ["name", "business", "email", "contact"] as const;
+const REQUIRED = ["name", "business", "email"] as const;
 
 /** Something@domain.zone without spaces: enough to catch typos, not to prove the mailbox exists. */
 const EMAIL = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
@@ -37,14 +37,14 @@ export function normalizeLead(fields: LeadFields): LeadFields {
     name: clean(fields.name, FIELD_LIMITS.name),
     business: clean(fields.business, FIELD_LIMITS.business),
     email: clean(fields.email, FIELD_LIMITS.email),
-    contact: clean(fields.contact, FIELD_LIMITS.contact),
+    telegram: clean(fields.telegram, FIELD_LIMITS.telegram),
   };
 }
 
 export function validateLead(fields: LeadFields): FieldErrors {
   const normalized = normalizeLead(fields);
   const errors: FieldErrors = {};
-  for (const field of FIELDS) {
+  for (const field of REQUIRED) {
     if (!normalized[field]) errors[field] = "required";
   }
   if (normalized.email && !EMAIL.test(normalized.email)) errors.email = "invalid";
@@ -64,11 +64,24 @@ function employeesWord(count: number): string {
   }
 }
 
-/** Plain-text lead as it arrives in Telegram or e-mail. */
+/** The calculator figures as one line of text. */
+export function roiNote(roi: LeadRoi): string {
+  const { input, result } = roi;
+  const money = (n: number) => formatMoney(n, input.currency);
+  return (
+    `Розрахунок: ${input.employees} ${employeesWord(input.employees)}, ` +
+    `${money(input.monthlyCost)} на місяць, ${input.routinePercent}% рутини. ` +
+    `Вивільняється ${formatNumber(result.hoursFreedPerMonth)} год на місяць, ` +
+    `вартість вивільненого часу ${money(result.yearlySaving)} на рік.`
+  );
+}
+
+/** Plain-text lead: what the visitor copies if the form could not deliver it. */
 export function buildLeadMessage(
   fields: LeadFields,
   brand: string,
   roi?: LeadRoi,
+  newsletter = false,
 ): string {
   const lead = normalizeLead(fields);
   const lines = [
@@ -76,19 +89,32 @@ export function buildLeadMessage(
     `Ім'я: ${lead.name}`,
     `Сайт або ніша: ${lead.business}`,
     `E-mail: ${lead.email}`,
-    `Контакт: ${lead.contact}`,
   ];
-  if (roi) {
-    const { input, result } = roi;
-    const money = (n: number) => formatMoney(n, input.currency);
-    lines.push(
-      `Розрахунок: ${input.employees} ${employeesWord(input.employees)}, ` +
-        `${money(input.monthlyCost)} на місяць, ${input.routinePercent}% рутини. ` +
-        `Вивільняється ${formatNumber(result.hoursFreedPerMonth)} год на місяць, ` +
-        `вартість вивільненого часу ${money(result.yearlySaving)} на рік.`,
-    );
-  }
+  if (lead.telegram) lines.push(`Telegram: ${lead.telegram}`);
+  if (roi) lines.push(roiNote(roi));
+  if (newsletter) lines.push("Розсилка: так");
   return lines.join("\n");
+}
+
+export interface LeadExtras {
+  /** The visitor ticked the newsletter box. */
+  newsletter: boolean;
+  /** The exact wording next to that box: kept with the lead as proof of what was agreed to. */
+  consentText: string;
+  /** Path of the page the form was sent from. */
+  page: string;
+  roi?: LeadRoi;
+}
+
+/** The lead as the server receives it. */
+export function leadPayload(fields: LeadFields, extras: LeadExtras) {
+  return {
+    ...normalizeLead(fields),
+    newsletter: extras.newsletter,
+    consentText: extras.newsletter ? extras.consentText : "",
+    page: extras.page,
+    roi: extras.roi ? roiNote(extras.roi) : "",
+  };
 }
 
 export type PreparedLead =
@@ -111,13 +137,14 @@ export function prepareLead(
   trap: string,
   brand: string,
   roi?: LeadRoi,
+  newsletter = false,
 ): PreparedLead {
   const errors = validateLead(fields);
   if (Object.keys(errors).length > 0) return { status: "invalid", errors };
   return {
     status: "ready",
     lead: normalizeLead(fields),
-    message: buildLeadMessage(fields, brand, roi),
+    message: buildLeadMessage(fields, brand, roi, newsletter),
     trapped: trap.trim() !== "",
   };
 }
@@ -163,6 +190,16 @@ export function telegramLink(nick: string | null, text?: string): string | null 
   return text ? `${base}?text=${encodeURIComponent(text)}` : base;
 }
 
+/**
+ * Link that opens the studio bot. `label` says where the person came from and
+ * reaches the bot with the Start button; an unusable label is dropped.
+ */
+export function botLink(nick: string | null, label?: string): string | null {
+  if (!nick) return null;
+  const base = `https://t.me/${nick}`;
+  return label && /^[A-Za-z0-9_-]{1,64}$/.test(label) ? `${base}?start=${label}` : base;
+}
+
 export function mailtoLink(
   email: string,
   subject: string,
@@ -173,11 +210,17 @@ export function mailtoLink(
   return `mailto:${address}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
-export type SubmitOutcome = "sent" | "fallback";
+export type SubmitOutcome =
+  /** Delivered. `telegram` opens the studio bot with this lead already attached. */
+  | { status: "sent"; telegram: string | null }
+  | { status: "fallback" };
+
+/** Only a t.me link with a start label is ever put under a button. */
+const CONTINUE_LINK = /^https:\/\/t\.me\/[A-Za-z0-9_]{4,32}\?start=[A-Za-z0-9_-]{1,64}$/;
 
 /**
  * Posts the lead to `endpoint`. Never throws: anything other than a 2xx
- * answer within the timeout means the caller must offer the Telegram path,
+ * answer within the timeout means the caller must offer another way,
  * so a visitor is never told "sent" when nothing arrived.
  */
 export async function submitLead(
@@ -186,7 +229,7 @@ export async function submitLead(
   fetchImpl: typeof fetch = fetch,
   timeoutMs = 8000,
 ): Promise<SubmitOutcome> {
-  if (!endpoint.trim()) return "fallback";
+  if (!endpoint.trim()) return { status: "fallback" };
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -197,9 +240,18 @@ export async function submitLead(
       body: JSON.stringify(payload),
       signal: controller.signal,
     });
-    return response.ok ? "sent" : "fallback";
+    if (!response.ok) return { status: "fallback" };
+    let telegram: string | null = null;
+    try {
+      const answer: unknown = await response.json();
+      const link = (answer as { telegram?: unknown } | null)?.telegram;
+      if (typeof link === "string" && CONTINUE_LINK.test(link)) telegram = link;
+    } catch {
+      // Delivered all the same; there is just no link to continue with.
+    }
+    return { status: "sent", telegram };
   } catch {
-    return "fallback";
+    return { status: "fallback" };
   } finally {
     clearTimeout(timer);
   }

@@ -107,11 +107,36 @@ test("every service has its own address, search title, description and page text
 });
 
 test("the form block says what happens after a lead is sent", () => {
-  expect(uk.lead.steps.join(" ")).toMatch(/30–40 хвилин/);
+  expect(uk.lead.steps).toHaveLength(3);
+  expect(uk.lead.steps.join(" ")).toMatch(/у переписці/i);
 });
 
 test("the form asks for an e-mail and the privacy page says so", () => {
   expect(uk.lead.fields.email.label).toMatch(/e-mail/i);
   expect(uk.lead.invalidEmail.trim()).not.toBe("");
   expect(uk.privacy.sections[0].text.join(" ")).toMatch(/e-mail/i);
+});
+
+test("nobody is promised a phone call, and no phone number is asked for", () => {
+  const all = JSON.stringify(uk);
+  expect(JSON.stringify(uk.lead)).not.toMatch(/телефон/i);
+  expect(JSON.stringify(uk.privacy)).not.toMatch(/телефон/i);
+  expect(all).not.toMatch(/хвилин розмови|Розмова на/);
+  expect(uk.lead.steps.join(" ")).toMatch(/без дзвінків/i);
+  expect(uk.lead.fields.telegram.label).toMatch(/необов/i);
+});
+
+test("the newsletter is a separate consent that says how to leave it", () => {
+  expect(uk.lead.newsletter).toMatch(/e-mail/i);
+  expect(uk.lead.newsletter).toMatch(/відписатис/i);
+  expect(uk.lead.privacyNote).toMatch(/погоджуєтесь/i);
+});
+
+test("the privacy page matches what the site now does with a lead", () => {
+  const text = JSON.stringify(uk.privacy);
+  expect(text).not.toMatch(/Сайт не зберігає/);
+  expect(text).not.toMatch(/Для розсилок і реклами ці дані не використовуємо/);
+  for (const must of [/розсилк/i, /окрем\S+ згод/i, /відписатис/i, /Telegram/, /видал/i, /cookies/i]) {
+    expect(text, String(must)).toMatch(must);
+  }
 });
