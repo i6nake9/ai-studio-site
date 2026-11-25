@@ -75,6 +75,22 @@ export function costLimits(currency: Currency, uahPerUsd: number): Range {
   };
 }
 
+/**
+ * Value of the "cost per employee" slider after the visitor switches currency:
+ * converted at the rate, rounded to the new step and kept inside the new range.
+ */
+export function convertCost(
+  value: number,
+  from: Currency,
+  to: Currency,
+  uahPerUsd: number,
+): number {
+  if (from === to) return value;
+  const limits = costLimits(to, uahPerUsd);
+  const converted = to === "UAH" ? value * uahPerUsd : value / uahPerUsd;
+  return clamp(roundTo(converted, limits.step), limits.min, limits.max);
+}
+
 export function calculateRoi(input: RoiInput): RoiResult {
   const { currency, uahPerUsd } = input;
   const cost = costLimits(currency, uahPerUsd);

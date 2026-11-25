@@ -1,6 +1,6 @@
-import { expect, test } from "vitest";
+import { describe, expect, test } from "vitest";
 
-import { calculateRoi, costLimits } from "./calculator";
+import { calculateRoi, convertCost, costLimits } from "./calculator";
 
 const usd = (employees: number, monthlyCost: number, routinePercent: number) =>
   calculateRoi({
@@ -70,5 +70,26 @@ test("cost slider limits follow the currency", () => {
     max: 126000,
     step: 500,
     initial: 29500,
+  });
+});
+
+describe("convertCost", () => {
+  test("USD to UAH uses the rate and rounds to the UAH step", () => {
+    expect(convertCost(700, "USD", "UAH", 45)).toBe(31500);
+    expect(convertCost(750, "USD", "UAH", 45.35)).toBe(34000);
+  });
+
+  test("UAH to USD rounds to the USD step", () => {
+    expect(convertCost(31500, "UAH", "USD", 45)).toBe(700);
+    expect(convertCost(33000, "UAH", "USD", 45)).toBe(750);
+  });
+
+  test("the result stays inside the slider range of the new currency", () => {
+    expect(convertCost(135000, "UAH", "USD", 40)).toBe(3000);
+    expect(convertCost(13500, "UAH", "USD", 50)).toBe(300);
+  });
+
+  test("same currency returns the value unchanged", () => {
+    expect(convertCost(725, "USD", "USD", 45)).toBe(725);
   });
 });
