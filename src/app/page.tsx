@@ -1,13 +1,27 @@
+import { Comparison } from "@/components/sections/comparison";
+import { Faq } from "@/components/sections/faq";
+import { Hero } from "@/components/sections/hero";
+import { Pains } from "@/components/sections/pains";
+import { Process } from "@/components/sections/process";
+import { Scenarios } from "@/components/sections/scenarios";
+import { Solutions } from "@/components/sections/solutions";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { uk } from "@/content/uk";
 
 export default function HomePage() {
   return (
     <>
       <SiteHeader />
       <main id="top">
-        <h1 className="shell py-20 font-display text-3xl">{uk.hero.title}</h1>
+        <Hero />
+        <Pains />
+        <Solutions />
+        <div id="calculator" />
+        <Scenarios />
+        <Comparison />
+        <Process />
+        <Faq />
+        <div id="lead" />
       </main>
       <SiteFooter />
     </>

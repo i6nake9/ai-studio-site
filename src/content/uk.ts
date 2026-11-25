@@ -33,6 +33,7 @@ export const uk: Dictionary = {
     ],
     cta: "Безкоштовний аудит",
     homeLabel: "На початок сторінки",
+    navLabel: "Розділи сторінки",
   },
 
   hero: {
@@ -242,6 +243,7 @@ export const uk: Dictionary = {
   ownProjects: {
     title: "Що вже працює в наших власних проєктах",
     lead: "Ті самі підходи ми щодня використовуємо у власних системах.",
+    status: "працює",
     items: [
       {
         title: "Конвеєр ШІ-агентів для контенту",

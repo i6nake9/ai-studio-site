@@ -40,8 +40,10 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 
-  --animate-signal: signal 4.5s cubic-bezier(0.6, 0, 0.4, 1) infinite;
+  --animate-signal: signal 5s linear infinite;
+  --animate-node-on: node-on 5s linear infinite;
   --animate-rise: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-settle: settle 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
 /*
@@ -187,18 +189,33 @@
   }
 }
 
+/* The dot that runs down the pipeline wire: its wrapper is as tall as the
+   wire and slides by its own height, so only transform is animated. */
 @keyframes signal {
   0% {
-    offset-distance: 0%;
+    transform: translateY(0);
     opacity: 0;
   }
   6%,
-  92% {
+  90% {
     opacity: 1;
   }
   100% {
-    offset-distance: 100%;
+    transform: translateY(100%);
     opacity: 0;
+  }
+}
+
+/* Each pipeline node lights up as the dot passes it. */
+@keyframes node-on {
+  0%,
+  22%,
+  100% {
+    opacity: 0.35;
+  }
+  4%,
+  14% {
+    opacity: 1;
   }
 }
 
@@ -209,6 +226,17 @@
   }
   to {
     opacity: 1;
+    transform: none;
+  }
+}
+
+/* Like `rise`, but never hides the element: used for the first-screen text,
+   which has to be readable from the very first paint. */
+@keyframes settle {
+  from {
+    transform: translateY(0.75rem);
+  }
+  to {
     transform: none;
   }
 }

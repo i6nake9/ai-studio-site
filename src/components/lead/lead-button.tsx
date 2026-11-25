@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
-/** Header button that leads to the lead form. */
-export function HeaderCta({
+/** Any button on the page that leads to the lead form. */
+export function LeadButton({
   className,
   children,
 }: {

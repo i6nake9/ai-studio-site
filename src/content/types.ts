@@ -20,6 +20,7 @@ export interface Dictionary {
     nav: { href: string; label: string }[];
     cta: string;
     homeLabel: string;
+    navLabel: string;
   };
 
   hero: {
@@ -76,7 +77,13 @@ export interface Dictionary {
     videos: { title: string; src: string }[];
   };
 
-  ownProjects: { title: string; lead: string; items: TitledText[] };
+  ownProjects: {
+    title: string;
+    lead: string;
+    /** Status label on each project card. */
+    status: string;
+    items: TitledText[];
+  };
 
   comparison: SectionHead & {
     columns: { criterion: string; others: string; us: string };

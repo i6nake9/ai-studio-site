@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { BrandMark } from "@/components/brand-mark";
 import { ctaCompact, ctaPrimary } from "@/components/cta";
-import { HeaderCta } from "@/components/lead/header-cta";
+import { LeadButton } from "@/components/lead/lead-button";
 import { uk } from "@/content/uk";
 import { cn } from "@/lib/utils";
 
@@ -28,7 +28,7 @@ export function SiteHeader({ variant = "home" }: SiteHeaderProps) {
 
         {variant === "home" ? (
           <>
-            <nav aria-label="Розділи сторінки" className="hidden lg:block">
+            <nav aria-label={t.navLabel} className="hidden lg:block">
               <ul className="flex items-center gap-7 text-sm text-muted-foreground">
                 {t.nav.map((item) => (
                   <li key={item.href}>
@@ -42,7 +42,7 @@ export function SiteHeader({ variant = "home" }: SiteHeaderProps) {
                 ))}
               </ul>
             </nav>
-            <HeaderCta className={cn(ctaPrimary, ctaCompact)}>{t.cta}</HeaderCta>
+            <LeadButton className={cn(ctaPrimary, ctaCompact)}>{t.cta}</LeadButton>
           </>
         ) : (
           <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
