@@ -1,24 +1,26 @@
-import { SectionHead } from "@/components/section-head";
 import { uk } from "@/content/uk";
 
 export function Comparison() {
   const t = uk.comparison;
   return (
-    <section className="border-t border-border py-20 sm:py-28">
+    <section className="band">
       <div className="shell">
-        <SectionHead index="05" eyebrow={t.eyebrow} title={t.title} />
+        <h2 className="h2 max-w-[47.5rem]">{t.title}</h2>
 
         {/* A real table on wide screens; each row becomes a card on phones. */}
-        <table className="mt-12 w-full border-collapse text-left text-[0.95rem] max-md:block">
+        <table className="mt-7 w-full border-separate border-spacing-0 overflow-hidden text-left text-[0.96875rem] leading-normal max-md:block md:rounded-xl md:border md:border-border md:bg-card">
           <thead className="max-md:sr-only">
-            <tr className="border-y border-border">
-              <th scope="col" className="label-mono w-[26%] py-4 pr-6 font-normal text-muted-foreground">
+            <tr>
+              <th scope="col" className="label w-[24%] border-b border-border px-5 py-4">
                 {t.columns.criterion}
               </th>
-              <th scope="col" className="label-mono w-[37%] py-4 pr-6 font-normal text-muted-foreground">
+              <th scope="col" className="label w-[36%] border-b border-border px-5 py-4">
                 {t.columns.others}
               </th>
-              <th scope="col" className="label-mono w-[37%] py-4 font-normal text-signal">
+              <th
+                scope="col"
+                className="label w-[40%] border-b border-border bg-signal-soft px-5 py-4 !font-bold !text-signal"
+              >
                 {t.columns.us}
               </th>
             </tr>
@@ -27,27 +29,21 @@ export function Comparison() {
             {t.rows.map((row) => (
               <tr
                 key={row.criterion}
-                className="border-b border-border align-top max-md:block max-md:border max-md:bg-card/50"
+                className="group align-top max-md:block max-md:overflow-hidden max-md:rounded-xl max-md:border max-md:border-border max-md:bg-card"
               >
                 <th
                   scope="row"
-                  className="py-6 pr-6 font-display text-base leading-snug font-medium max-md:block max-md:border-b max-md:border-border max-md:px-5 max-md:py-4"
+                  className="px-5 py-[1.125rem] font-bold max-md:block max-md:border-b max-md:border-border md:border-b md:border-border md:group-last:border-b-0"
                 >
                   {row.criterion}
                 </th>
-                <td className="py-6 pr-6 text-muted-foreground max-md:block max-md:px-5 max-md:pt-4 max-md:pb-0">
-                  <span className="label-mono mb-2 block text-muted-foreground/80 md:hidden">
-                    {t.columns.others}
-                  </span>
+                <td className="px-5 py-[1.125rem] text-muted-foreground max-md:block max-md:pb-2 md:border-b md:border-border md:group-last:border-b-0">
+                  <span className="label mb-1 block md:hidden">{t.columns.others}</span>
                   {row.others}
                 </td>
-                <td className="py-6 max-md:block max-md:px-5 max-md:py-4">
-                  <span className="label-mono mb-2 block text-signal md:hidden">
-                    {t.columns.us}
-                  </span>
-                  <span className="md:block md:border-l-2 md:border-signal md:pl-4">
-                    {row.us}
-                  </span>
+                <td className="bg-signal-soft/45 px-5 py-[1.125rem] max-md:block md:border-b md:border-border md:group-last:border-b-0">
+                  <span className="label mb-1 block !text-signal md:hidden">{t.columns.us}</span>
+                  {row.us}
                 </td>
               </tr>
             ))}

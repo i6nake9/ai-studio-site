@@ -1,44 +1,76 @@
-import { ctaPrimary, ctaSecondary } from "@/components/cta";
+import { ctaPrimary, linkAccent } from "@/components/cta";
+import { ArrowIcon, CheckIcon } from "@/components/icons";
 import { LeadButton } from "@/components/lead/lead-button";
 import { uk } from "@/content/uk";
 
-import { PipelineDiagram } from "./pipeline-diagram";
-
 export function Hero() {
   const t = uk.hero;
+  const list = t.checklist;
   return (
-    <section className="relative overflow-hidden">
-      <div aria-hidden="true" className="grid-paper pointer-events-none absolute inset-0" />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -top-56 right-[-15%] size-[52rem] bg-[radial-gradient(closest-side,color-mix(in_oklch,var(--signal)_13%,transparent),transparent)]"
-      />
-
-      <div className="shell relative grid gap-12 py-14 sm:py-20 lg:grid-cols-[1.2fr_0.8fr] lg:items-center lg:gap-14 lg:py-28">
+    <section className="pt-10 pb-9 sm:pt-14 sm:pb-12 lg:pt-[4.25rem]">
+      <div className="shell grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16">
         <div>
-          <p className="label-mono inline-flex max-w-full animate-settle items-center gap-2.5 border border-border bg-card/60 px-3 py-2 leading-relaxed text-muted-foreground">
-            <span aria-hidden="true" className="size-1.5 shrink-0 bg-signal" />
-            {t.badge}
-          </p>
-
-          <h1 className="mt-7 animate-settle font-display text-[1.75rem] leading-[1.12] font-medium tracking-tight sm:text-[2.6rem] lg:text-[3.1rem]">
+          <p className="eyebrow">{t.eyebrow}</p>
+          <h1 className="mt-5 text-[2rem] leading-[1.06] font-bold tracking-[-0.03em] sm:text-[2.75rem] lg:text-[3.25rem]">
             {t.title}
           </h1>
-
-          <p className="mt-6 max-w-xl animate-settle text-base text-muted-foreground sm:text-lg">
+          <p className="mt-5 max-w-[36rem] text-[1.0625rem] text-muted-foreground sm:text-[1.1875rem]">
             {t.subtitle}
           </p>
-
-          <div className="mt-9 flex animate-rise flex-col gap-3 [animation-delay:120ms] sm:flex-row">
-            <LeadButton className={ctaPrimary}>{t.ctaPrimary}</LeadButton>
-            <a href="#calculator" className={ctaSecondary}>
+          <div className="mt-7 flex flex-col gap-x-6 gap-y-2 sm:flex-row sm:items-center">
+            <LeadButton className={ctaPrimary}>
+              {t.ctaPrimary}
+              <ArrowIcon className="size-[1.125rem]" />
+            </LeadButton>
+            <a href="#calculator" className={`${linkAccent} justify-center`}>
               {t.ctaSecondary}
             </a>
           </div>
         </div>
 
-        <div className="animate-rise [animation-delay:220ms]">
-          <PipelineDiagram />
+        {/* The offer as a picture: a team to-do list with the routine ticked off. */}
+        <div className="w-full max-w-[32.5rem] animate-rise rounded-[0.875rem] border border-border bg-card px-5 pt-5 pb-4 shadow-[0_24px_48px_-32px_rgb(15_26_21/0.35)] sm:px-[1.625rem] sm:pt-6 sm:pb-5 lg:justify-self-end">
+          <div className="flex items-center justify-between gap-3 pb-3.5">
+            <p className="font-bold">{list.title}</p>
+            <p className="font-mono text-xs text-subtle">{list.tag}</p>
+          </div>
+          <ul>
+            {list.items.map((item, i) => (
+              <li
+                key={item.task}
+                className="flex items-center gap-3.5 border-t border-border/70 py-3"
+              >
+                <span
+                  aria-hidden="true"
+                  style={{ animationDelay: `${300 + i * 140}ms` }}
+                  className="grid size-[1.375rem] shrink-0 animate-tick place-items-center rounded-md bg-primary text-primary-foreground"
+                >
+                  <CheckIcon className="size-3.5" />
+                </span>
+                <span className="min-w-0 flex-1 text-base leading-snug text-subtle line-through decoration-signal">
+                  {item.task}
+                </span>
+                <span className="shrink-0 rounded-md bg-signal-soft px-2 py-1 font-mono text-[0.6875rem] text-signal">
+                  {item.by}
+                </span>
+              </li>
+            ))}
+            <li className="flex items-center gap-3.5 border-t border-border/70 py-3">
+              <span
+                aria-hidden="true"
+                className="size-[1.375rem] shrink-0 rounded-md border-2 border-foreground"
+              />
+              <span className="min-w-0 flex-1 text-base leading-snug font-semibold">
+                {list.human.task}
+              </span>
+              <span className="shrink-0 rounded-md border border-foreground px-2 py-[0.1875rem] font-mono text-[0.6875rem]">
+                {list.human.by}
+              </span>
+            </li>
+          </ul>
+          <p className="border-t border-border/70 pt-3.5 text-sm leading-snug text-subtle">
+            {list.note}
+          </p>
         </div>
       </div>
     </section>

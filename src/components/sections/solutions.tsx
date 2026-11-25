@@ -1,61 +1,66 @@
-import { SectionHead } from "@/components/section-head";
+import Link from "next/link";
+
+import { CheckIcon } from "@/components/icons";
 import { uk } from "@/content/uk";
 
 export function Solutions() {
   const t = uk.solutions;
   return (
-    <section id="solutions" className="border-t border-border py-20 sm:py-28">
+    <section id="services" className="band">
       <div className="shell">
-        <SectionHead index="02" eyebrow={t.eyebrow} title={t.title} lead={t.lead} />
+        <div className="max-w-[47.5rem]">
+          <p className="eyebrow">{t.eyebrow}</p>
+          <h2 className="h2 mt-2.5">{t.title}</h2>
+          <p className="mt-2.5 text-muted-foreground">{t.lead}</p>
+        </div>
 
-        <ol className="mt-12 border-t border-border">
+        <div className="mt-8 border-b border-border-strong">
           {t.items.map((item, i) => (
-            <li
-              key={item.title}
-              className="grid gap-6 border-b border-border py-9 lg:grid-cols-[1.05fr_1.1fr_0.85fr] lg:gap-10 lg:py-11"
+            <article
+              key={item.slug}
+              className="grid gap-x-10 gap-y-6 border-t border-border-strong py-7 lg:grid-cols-3"
             >
               <div>
-                <p className="label-mono text-signal" aria-hidden="true">
-                  {String(i + 1).padStart(2, "0")} / 04
-                </p>
-                <h3 className="mt-4 font-display text-xl leading-tight font-medium sm:text-[1.4rem]">
+                {i === 0 ? (
+                  <p className="mb-3 inline-block rounded-md bg-signal-soft px-2.5 py-1 text-[0.8125rem] leading-snug font-semibold text-signal">
+                    {t.showcaseBadge}
+                  </p>
+                ) : null}
+                <h3 className="text-[1.4375rem] leading-tight font-bold tracking-[-0.015em]">
                   {item.title}
                 </h3>
-                <p className="mt-3 text-[0.95rem] text-muted-foreground">{item.summary}</p>
+                <p className="mt-3 text-[0.96875rem] leading-[1.55] text-muted-foreground">
+                  {item.summary}
+                </p>
+                <Link
+                  href={`/poslugy/${item.slug}/`}
+                  className="mt-2 inline-flex min-h-11 items-center text-[0.96875rem] font-semibold text-signal underline underline-offset-4 hover:text-foreground"
+                >
+                  {item.more} →
+                </Link>
               </div>
 
-              <div>
-                <p className="label-mono text-muted-foreground">{t.includesLabel}</p>
-                <ul className="mt-4 space-y-2.5 text-[0.95rem]">
-                  {item.includes.map((line) => (
-                    <li key={line} className="flex gap-3">
-                      <span aria-hidden="true" className="mt-[0.55rem] size-1.5 shrink-0 bg-signal" />
-                      {line}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <ul aria-label={t.includesLabel} className="space-y-2.5 text-[0.96875rem] leading-snug">
+                {item.includes.map((line) => (
+                  <li key={line} className="flex gap-2.5">
+                    <CheckIcon className="mt-1 size-4 shrink-0 text-signal" />
+                    {line}
+                  </li>
+                ))}
+              </ul>
 
               <div>
-                <p className="label-mono text-muted-foreground">{t.integratesLabel}</p>
-                <ul className="mt-4 flex flex-wrap gap-1.5">
-                  {item.integrations.map((name) => (
-                    <li
-                      key={name}
-                      className="border border-border px-2 py-1 font-mono text-xs text-muted-foreground"
-                    >
-                      {name}
-                    </li>
-                  ))}
-                </ul>
-                <p className="label-mono mt-7 text-muted-foreground">{t.outcomeLabel}</p>
-                <p className="mt-3 border-l-2 border-signal pl-4 text-[0.95rem]">
-                  {item.outcome}
+                <div className="rounded-[0.625rem] border border-border bg-card px-[1.125rem] py-4">
+                  <p className="label">{t.outcomeLabel}</p>
+                  <p className="mt-1.5 text-[0.96875rem] leading-normal">{item.outcome}</p>
+                </div>
+                <p className="mt-3.5 text-sm leading-normal text-subtle">
+                  {t.integratesLabel}: {item.integrations.join(", ")}
                 </p>
               </div>
-            </li>
+            </article>
           ))}
-        </ol>
+        </div>
       </div>
     </section>
   );

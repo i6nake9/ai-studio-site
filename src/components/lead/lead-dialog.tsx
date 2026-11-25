@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef } from "react";
 
 import { uk } from "@/content/uk";
+import { channels } from "@/lib/contacts";
 import type { LeadRoi } from "@/lib/lead";
 import { isBackdropDismiss } from "@/lib/lead-dialog-state";
 
@@ -46,7 +47,7 @@ export function LeadDialog({
     <dialog
       ref={ref}
       aria-labelledby={titleId}
-      aria-describedby={textId}
+      aria-describedby={channels.any ? textId : undefined}
       onClose={() => onOpenChange(false)}
       // The dialog box itself has no padding, so an event whose target is the
       // <dialog> element landed on the backdrop.
@@ -59,17 +60,20 @@ export function LeadDialog({
         }
         pressTarget.current = null;
       }}
-      className="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-lg overflow-y-auto rounded-[3px] border border-input bg-popover p-0 text-popover-foreground backdrop:bg-black/70 open:animate-rise"
+      className="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-lg overflow-y-auto rounded-2xl border border-border-strong bg-card p-0 text-foreground shadow-[0_32px_64px_-24px_rgb(15_26_21/0.5)] backdrop:bg-[rgb(13_21_18/0.6)] open:animate-rise"
     >
       {/* Rendered only once opened: keeps the form out of the initial HTML. */}
       {session > 0 ? (
         <div className="relative p-6 sm:p-8">
-          <h2 id={titleId} className="pr-10 font-display text-xl leading-tight font-medium">
+          <h2 id={titleId} className="pr-10 text-[1.375rem] leading-tight font-bold tracking-[-0.015em]">
             {t.dialogTitle}
           </h2>
-          <p id={textId} className="mt-2 text-sm text-muted-foreground">
-            {t.dialogText}
-          </p>
+          {/* "Three fields…" makes no sense while the form is replaced by a notice. */}
+          {channels.any ? (
+            <p id={textId} className="mt-2 text-[0.9375rem] text-muted-foreground">
+              {t.dialogText}
+            </p>
+          ) : null}
           <div className="mt-6">
             <LeadForm key={session} roi={roi} onSent={onSent} />
           </div>
@@ -79,7 +83,7 @@ export function LeadDialog({
             type="button"
             onClick={() => onOpenChange(false)}
             aria-label={t.dialogClose}
-            className="absolute top-2 right-2 grid size-11 place-items-center font-mono text-2xl leading-none text-muted-foreground hover:text-foreground"
+            className="absolute top-2 right-2 grid size-11 place-items-center rounded-lg text-2xl leading-none text-muted-foreground hover:text-foreground"
           >
             <span aria-hidden="true">×</span>
           </button>

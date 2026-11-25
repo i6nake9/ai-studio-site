@@ -11,7 +11,7 @@ const display = Unbounded({
   variable: "--font-unbounded",
   // `subsets` only chooses what to preload: Latin still loads when needed.
   subsets: ["cyrillic"],
-  weight: ["500", "700"],
+  weight: ["500", "600"],
   display: "swap",
 });
 
@@ -31,11 +31,12 @@ const mono = JetBrains_Mono({
 
 const ogImage = `${siteConfig.siteUrl}/og.png`;
 
+// Defaults for every page. Each page sets its own title, description and
+// canonical address; these fill in the rest.
 export const metadata: Metadata = {
   metadataBase: new URL(`${siteConfig.siteUrl}/`),
   title: uk.meta.title,
   description: uk.meta.description,
-  alternates: { canonical: `${siteConfig.siteUrl}/` },
   robots: siteConfig.noindex
     ? { index: false, follow: false }
     : { index: true, follow: true },
@@ -43,22 +44,17 @@ export const metadata: Metadata = {
     type: "website",
     locale: "uk_UA",
     siteName: siteConfig.brand,
-    title: uk.meta.title,
-    description: uk.meta.description,
-    url: `${siteConfig.siteUrl}/`,
     images: [{ url: ogImage, width: 1200, height: 630, alt: uk.meta.title }],
   },
   twitter: {
     card: "summary_large_image",
-    title: uk.meta.title,
-    description: uk.meta.description,
     images: [ogImage],
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0d1512",
-  colorScheme: "dark",
+  themeColor: "#f4f6f2",
+  colorScheme: "light",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

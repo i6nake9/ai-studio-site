@@ -1,31 +1,60 @@
+import type { Metadata } from "next";
+
+import { JsonLd } from "@/components/json-ld";
+import { MobileBar } from "@/components/mobile-bar";
 import { Comparison } from "@/components/sections/comparison";
 import { Faq } from "@/components/sections/faq";
 import { Hero } from "@/components/sections/hero";
 import { LeadSection } from "@/components/sections/lead-section";
+import { OwnProjects } from "@/components/sections/own-projects";
 import { Pains } from "@/components/sections/pains";
 import { Process } from "@/components/sections/process";
 import { RoiCalculator } from "@/components/sections/roi-calculator";
 import { Scenarios } from "@/components/sections/scenarios";
 import { Solutions } from "@/components/sections/solutions";
+import { Trust } from "@/components/sections/trust";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { uk } from "@/content/uk";
+import { telegramUrl } from "@/lib/contacts";
+import { pageMeta } from "@/lib/page-meta";
+import { faqJsonLd, organizationJsonLd, pageUrl } from "@/lib/seo";
+
+import { siteConfig } from "../../site.config";
+
+export const metadata: Metadata = pageMeta("/", uk.meta.title, uk.meta.description);
 
 export default function HomePage() {
+  const home = pageUrl(siteConfig.siteUrl, "/");
   return (
     <>
-      <SiteHeader />
+      <JsonLd
+        data={organizationJsonLd({
+          name: siteConfig.brand,
+          url: home,
+          description: uk.meta.description,
+          logo: `${siteConfig.siteUrl}/og.png`,
+          telegramUrl,
+          email: siteConfig.email,
+        })}
+      />
+      <JsonLd data={faqJsonLd(uk.faq.items)} />
+      <SiteHeader home />
       <main id="top">
         <Hero />
+        <Trust />
         <Pains />
         <Solutions />
         <RoiCalculator />
-        <Scenarios />
-        <Comparison />
         <Process />
+        <Scenarios />
+        <OwnProjects />
+        <Comparison />
         <Faq />
         <LeadSection />
       </main>
       <SiteFooter />
+      <MobileBar />
     </>
   );
 }

@@ -16,20 +16,37 @@ interface SectionHead {
 export interface Dictionary {
   meta: { title: string; description: string };
 
+  /** The logo as text: the first part is drawn in the accent colour. */
+  wordmark: { accent: string; rest: string };
+
   header: {
+    /** `href` is a section of the home page, e.g. "#prices". */
     nav: { href: string; label: string }[];
     cta: string;
     navLabel: string;
+    menu: string;
+    telegram: string;
   };
 
   hero: {
-    badge: string;
+    eyebrow: string;
     title: string;
     subtitle: string;
     ctaPrimary: string;
     ctaSecondary: string;
-    diagram: { caption: string; nodes: { label: string; detail: string }[] };
+    /** The to-do list on the first screen: routine tasks and who takes them. */
+    checklist: {
+      title: string;
+      tag: string;
+      items: { task: string; by: string }[];
+      /** The one task that stays with people. */
+      human: { task: string; by: string };
+      note: string;
+    };
   };
+
+  /** Four short facts under the first screen that answer the first doubts. */
+  trust: { label: string; items: TitledText[] };
 
   pains: SectionHead & { items: TitledText[] };
 
@@ -38,13 +55,49 @@ export interface Dictionary {
     includesLabel: string;
     integratesLabel: string;
     outcomeLabel: string;
+    /** Badge on the first service: the one that can be demonstrated today. */
+    showcaseBadge: string;
     items: {
+      /** Address of the service page: /poslugy/<slug>/. Latin letters, digits, hyphens. */
+      slug: string;
       title: string;
+      /** Short name for menus and the footer. */
+      short: string;
+      /** Text of the link to the service page. */
+      more: string;
       summary: string;
       includes: string[];
       integrations: string[];
       outcome: string;
+      /** Texts of the separate page of this service. */
+      page: {
+        /** Title in the search result, up to 60 characters. */
+        metaTitle: string;
+        /** Description in the search result, 110–160 characters. */
+        metaDescription: string;
+        h1: string;
+        intro: string;
+        fits: string[];
+        faq: { question: string; answer: string }[];
+      };
     }[];
+  };
+
+  /** Headings shared by all service pages. */
+  servicePage: {
+    eyebrow: string;
+    breadcrumbLabel: string;
+    home: string;
+    services: string;
+    cta: string;
+    pricesLink: string;
+    includesTitle: string;
+    fitsTitle: string;
+    processTitle: string;
+    pricesTitle: string;
+    pricesLead: string;
+    faqTitle: string;
+    otherTitle: string;
   };
 
   calculator: SectionHead & {
@@ -84,6 +137,16 @@ export interface Dictionary {
     items: TitledText[];
   };
 
+  /** The "who you talk to" block next to the own projects. */
+  founder: {
+    label: string;
+    role: string;
+    text: string;
+    photoAlt: string;
+    telegramCta: string;
+    auditCta: string;
+  };
+
   comparison: SectionHead & {
     columns: { criterion: string; others: string; us: string };
     rows: { criterion: string; others: string; us: string }[];
@@ -91,12 +154,21 @@ export interface Dictionary {
 
   process: SectionHead & { steps: TitledText[] };
 
+  prices: {
+    title: string;
+    items: { title: string; price: string; text: string; badge?: string }[];
+  };
+
   faq: SectionHead & {
+    lead: string;
+    leadCta: string;
     items: { question: string; answer: string[]; list?: string[] }[];
   };
 
   lead: SectionHead & {
     text: string;
+    /** What happens after the form is sent, three short steps. */
+    steps: string[];
     fields: {
       name: { label: string; placeholder: string };
       business: { label: string; placeholder: string };
@@ -130,7 +202,20 @@ export interface Dictionary {
     };
   };
 
-  footer: { tagline: string; privacy: string; telegram: string };
+  footer: {
+    tagline: string;
+    privacy: string;
+    telegram: string;
+    servicesTitle: string;
+    studioTitle: string;
+    contactsTitle: string;
+    studioLinks: { href: string; label: string }[];
+  };
+
+  /** Bar fixed to the bottom of the screen on phones. */
+  mobileBar: { label: string; audit: string; telegram: string };
+
+  notFound: { title: string; text: string; back: string };
 
   privacy: {
     title: string;

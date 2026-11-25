@@ -4,7 +4,6 @@ import { type CSSProperties, useId, useState } from "react";
 
 import { ctaPrimary } from "@/components/cta";
 import { LeadButton } from "@/components/lead/lead-button";
-import { SectionHead } from "@/components/section-head";
 import { uk } from "@/content/uk";
 import {
   calculateRoi,
@@ -49,11 +48,12 @@ function RangeField({
   return (
     <div>
       <div className="flex items-baseline justify-between gap-4">
-        <label htmlFor={id} className="text-[0.95rem] font-medium">
+        <label htmlFor={id} className="text-base leading-snug font-medium">
           {label}
         </label>
         <output
           htmlFor={id}
+          aria-hidden="true"
           className="shrink-0 font-mono text-base text-signal tabular-nums"
         >
           {display}
@@ -67,7 +67,7 @@ function RangeField({
       <input
         id={id}
         type="range"
-        className="range mt-1"
+        className="range"
         style={{ "--fill": `${fill}%` } as CSSProperties}
         min={min}
         max={max}
@@ -110,23 +110,29 @@ export function RoiCalculator() {
     { value: "UAH", label: t.currency.uah },
   ];
 
+  const yearly = formatMoney(result.yearlySaving, currency);
+
   return (
-    <section id="calculator" className="border-t border-border py-20 sm:py-28">
+    <section id="calculator" className="pb-14 sm:pb-[4.5rem]">
       <div className="shell">
-        <SectionHead index="03" eyebrow={t.eyebrow} title={t.title} lead={t.lead} />
+        <div className="on-dark rounded-[1.125rem] px-5 py-7 sm:p-10 lg:p-[3.25rem]">
+          <div className="max-w-[45rem]">
+            <p className="eyebrow">{t.eyebrow}</p>
+            <h2 className="h2 mt-2.5">{t.title}</h2>
+            <p className="mt-2.5 text-muted-foreground">{t.lead}</p>
+          </div>
 
-        <div className="mt-12 grid border border-border lg:grid-cols-[1.05fr_0.95fr]">
-          {/* inputs */}
-          <div className="space-y-8 p-6 sm:p-9">
-            <RangeField
-              label={t.employees.label}
-              display={formatNumber(employees)}
-              value={employees}
-              {...LIMITS.employees}
-              onChange={setEmployees}
-            />
+          <div className="mt-9 grid gap-x-16 gap-y-8 lg:grid-cols-[1.1fr_0.9fr]">
+            {/* inputs */}
+            <div className="space-y-5">
+              <RangeField
+                label={t.employees.label}
+                display={formatNumber(employees)}
+                value={employees}
+                {...LIMITS.employees}
+                onChange={setEmployees}
+              />
 
-            <div>
               <RangeField
                 label={t.cost.label}
                 hint={t.cost.hint}
@@ -137,99 +143,103 @@ export function RoiCalculator() {
                 step={cost.step}
                 onChange={setMonthlyCost}
               />
-              <div
-                role="group"
-                aria-label={t.currency.label}
-                className="mt-2 inline-flex border border-input"
-              >
-                {currencies.map((item) => (
-                  <button
-                    key={item.value}
-                    type="button"
-                    aria-pressed={currency === item.value}
-                    onClick={() => switchCurrency(item.value)}
+
+              <RangeField
+                label={t.routine.label}
+                hint={t.routine.hint}
+                display={`${routinePercent}%`}
+                value={routinePercent}
+                {...LIMITS.routinePercent}
+                onChange={setRoutinePercent}
+              />
+
+              <div className="flex items-center gap-3.5">
+                <span id="calc-currency" className="text-[0.9375rem] text-muted-foreground">
+                  {t.currency.label}
+                </span>
+                <div role="group" aria-labelledby="calc-currency" className="flex gap-1.5">
+                  {currencies.map((item) => (
+                    <button
+                      key={item.value}
+                      type="button"
+                      aria-pressed={currency === item.value}
+                      onClick={() => switchCurrency(item.value)}
+                      className={cn(
+                        "min-h-11 min-w-14 rounded-lg border px-3.5 text-[0.9375rem] font-semibold transition-colors",
+                        currency === item.value
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border-strong hover:border-signal",
+                      )}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* result */}
+            <div className="flex flex-col gap-5 rounded-[0.875rem] border border-border bg-card p-5 sm:p-8">
+              <dl aria-live="polite" className="grid gap-x-6 gap-y-5 sm:grid-cols-2">
+                <div className="border-b border-border pb-5 sm:col-span-2">
+                  <dt className="label !text-muted-foreground">{t.results.yearly}</dt>
+                  <dd
                     className={cn(
-                      "min-h-11 min-w-14 px-4 font-mono text-sm transition-colors",
-                      currency === item.value
-                        ? "bg-signal text-primary-foreground"
-                        : "text-muted-foreground hover:text-foreground",
+                      "mt-1.5 font-display leading-[1.05] font-semibold tracking-[-0.03em] text-signal tabular-nums",
+                      // Long hryvnia figures get a smaller size so they fit a 320 px screen.
+                      yearly.length > 10
+                        ? "text-[clamp(1.375rem,6.2vw,2.75rem)]"
+                        : "text-[clamp(2rem,9vw,3.375rem)]",
                     )}
                   >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <RangeField
-              label={t.routine.label}
-              hint={t.routine.hint}
-              display={`${routinePercent}%`}
-              value={routinePercent}
-              {...LIMITS.routinePercent}
-              onChange={setRoutinePercent}
-            />
-          </div>
-
-          {/* result */}
-          <div className="flex flex-col border-t border-border bg-card/60 p-6 sm:p-9 lg:border-t-0 lg:border-l">
-            <dl aria-live="polite" className="grid gap-7 sm:grid-cols-2">
-              <div className="border-b border-border pb-7 sm:col-span-2">
-                <dt className="label-mono text-muted-foreground">{t.results.yearly}</dt>
-                <dd className="mt-3 font-display text-[2rem] leading-none font-medium text-signal tabular-nums sm:text-5xl">
-                  {formatMoney(result.yearlySaving, currency)}
-                </dd>
-              </div>
-              <div>
-                <dt className="label-mono text-muted-foreground">{t.results.hours}</dt>
-                <dd className="mt-3 font-display text-2xl leading-none font-medium tabular-nums">
-                  {formatNumber(result.hoursFreedPerMonth)}{" "}
-                  <span className="font-sans text-base font-normal text-muted-foreground">
-                    {t.results.hoursUnit}
-                  </span>
-                </dd>
-              </div>
-              <div>
-                <dt className="label-mono text-muted-foreground">{t.results.payback}</dt>
-                {result.paybackMonths === null ? (
-                  <dd className="mt-3 text-[0.95rem] text-amber">{t.longPayback}</dd>
-                ) : (
-                  <dd className="mt-3 font-display text-2xl leading-none font-medium tabular-nums">
-                    {formatMonths(result.paybackMonths)}
+                    {yearly}
                   </dd>
-                )}
-              </div>
-            </dl>
+                </div>
+                <div>
+                  <dt className="label !text-muted-foreground">{t.results.hours}</dt>
+                  <dd className="mt-1.5 font-display text-[1.625rem] leading-tight font-medium tabular-nums">
+                    {formatNumber(result.hoursFreedPerMonth)}{" "}
+                    <span className="font-sans text-base font-normal text-muted-foreground">
+                      {t.results.hoursUnit}
+                    </span>
+                  </dd>
+                </div>
+                <div>
+                  <dt className="label !text-muted-foreground">{t.results.payback}</dt>
+                  {result.paybackMonths === null ? (
+                    <dd className="mt-1.5 text-[0.9375rem] leading-normal text-amber">
+                      {t.longPayback}
+                    </dd>
+                  ) : (
+                    <dd className="mt-1.5 font-display text-[1.625rem] leading-tight font-medium tabular-nums">
+                      {formatMonths(result.paybackMonths)}
+                    </dd>
+                  )}
+                </div>
+              </dl>
 
-            <p className="mt-7 text-sm text-muted-foreground">{t.estimateNote}</p>
-
-            <div className="mt-auto pt-8">
-              <LeadButton roi={{ input, result }} className={cn(ctaPrimary, "w-full")}>
+              <LeadButton
+                roi={{ input, result }}
+                className={cn(ctaPrimary, "w-full px-5 text-base")}
+              >
                 {t.cta}
               </LeadButton>
+
+              {/* assumptions */}
+              <details className="text-[0.90625rem] leading-[1.55] text-muted-foreground">
+                <summary className="inline-flex min-h-11 items-center font-medium text-foreground underline decoration-border-strong underline-offset-4 hover:text-signal">
+                  {t.howTitle}
+                </summary>
+                <ul className="mt-1 list-disc space-y-1.5 pl-[1.125rem]">
+                  {t.how.map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+                </ul>
+              </details>
+
+              <p className="text-sm leading-normal text-muted-foreground">{t.estimateNote}</p>
             </div>
           </div>
-
-          {/* assumptions */}
-          <details className="group border-t border-border lg:col-span-2">
-            <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-6 px-6 text-[0.95rem] font-medium hover:text-signal sm:px-9 [&::-webkit-details-marker]:hidden">
-              {t.howTitle}
-              <span
-                aria-hidden="true"
-                className="font-mono text-xl leading-none font-normal text-signal transition-transform duration-200 group-open:rotate-45"
-              >
-                +
-              </span>
-            </summary>
-            <ul className="space-y-2 px-6 pb-7 text-[0.95rem] text-muted-foreground sm:px-9">
-              {t.how.map((line) => (
-                <li key={line} className="flex gap-3">
-                  <span aria-hidden="true" className="mt-[0.6rem] size-1.5 shrink-0 bg-signal" />
-                  {line}
-                </li>
-              ))}
-            </ul>
-          </details>
         </div>
       </div>
     </section>

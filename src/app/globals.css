@@ -4,90 +4,99 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
   --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
+  --color-subtle: var(--subtle);
   --color-destructive: var(--destructive);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-signal: var(--signal);
+  --color-signal-soft: var(--signal-soft);
   --color-amber: var(--amber);
-  --color-line: var(--line);
 
   --font-sans: var(--font-onest), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-unbounded), var(--font-onest), ui-sans-serif, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, "SF Mono", monospace;
-  --font-heading: var(--font-display);
 
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
-
-  --animate-signal: signal 5s linear infinite;
-  --animate-node-on: node-on 5s linear infinite;
-  --animate-rise: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
-  --animate-settle: settle 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-rise: rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-tick: tick 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
 /*
- * One theme: a dark technical drawing. Near-black with a green cast,
- * hairline rules, one "signal" green for everything that acts, and a
- * small amount of amber for the "before" state.
+ * Light page: warm paper with a green cast, white cards, ink text, one
+ * bright green for the main action. Dark panels (calculator, lead form,
+ * footer) use the same token names with other values: see `.on-dark`.
  */
 :root {
-  --background: oklch(0.155 0.012 165);
-  --foreground: oklch(0.95 0.012 130);
-  --card: oklch(0.19 0.014 165);
-  --card-foreground: var(--foreground);
-  --popover: oklch(0.2 0.015 165);
-  --popover-foreground: var(--foreground);
-  --primary: oklch(0.84 0.19 155);
-  --primary-foreground: oklch(0.17 0.03 160);
-  --secondary: oklch(0.24 0.016 165);
-  --secondary-foreground: var(--foreground);
-  --muted: oklch(0.24 0.016 165);
-  --muted-foreground: oklch(0.74 0.022 160);
-  --accent: oklch(0.24 0.016 165);
-  --accent-foreground: var(--foreground);
-  --destructive: oklch(0.74 0.17 25);
-  --border: oklch(1 0 0 / 11%);
-  --input: oklch(1 0 0 / 16%);
-  --ring: oklch(0.84 0.19 155);
-  --signal: oklch(0.84 0.19 155);
-  --amber: oklch(0.83 0.14 80);
-  --line: oklch(1 0 0 / 7%);
-  --radius: 0.25rem;
+  --background: #f4f6f2;
+  --foreground: #0f1a15;
+  --card: #ffffff;
+  --primary: #34e28b;
+  --primary-hover: #5aeaa2;
+  --primary-foreground: #0b1f15;
+  --muted-foreground: #45544c;
+  --subtle: #5b6a62;
+  --destructive: #b3261e;
+  --border: #d9e0da;
+  --border-strong: #c9d2cb;
+  --input: #9aa9a0;
+  --ring: #08703f;
+  /* Accent for text and small marks; readable on the page and on cards. */
+  --signal: #08703f;
+  --signal-soft: #e3f4ea;
+  --amber: #8a5a00;
 
+  color-scheme: light;
+}
+
+/* A dark block inside the light page. Everything inside picks up these values. */
+.on-dark {
+  --background: #0d1512;
+  --foreground: #eef3ee;
+  --card: #131d18;
+  --muted-foreground: #a6b5ac;
+  --subtle: #8a9a90;
+  --destructive: #ff8a80;
+  --border: #26332c;
+  --border-strong: #3a4a41;
+  --input: #55685d;
+  --ring: #34e28b;
+  --signal: #34e28b;
+  --signal-soft: #17352a;
+  --amber: #f2c46b;
+
+  background-color: var(--background);
+  color: var(--foreground);
   color-scheme: dark;
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
 
   html {
     @apply font-sans;
     scroll-behavior: smooth;
-    scroll-padding-top: 5rem;
+    scroll-padding-top: 1.5rem;
     -webkit-text-size-adjust: 100%;
+  }
+
+  @media (min-width: 64rem) {
+    html {
+      /* Room for the header that stays on screen on wide layouts. */
+      scroll-padding-top: 5.5rem;
+    }
   }
 
   body {
     @apply bg-background text-foreground;
+    font-size: 1.0625rem;
+    line-height: 1.6;
     /* Long Ukrainian words must never push the page wider than the screen. */
     overflow-wrap: break-word;
   }
@@ -109,73 +118,89 @@
   }
 
   ::selection {
-    background: color-mix(in oklch, var(--signal) 35%, transparent);
+    background: color-mix(in oklch, var(--primary) 45%, transparent);
   }
 
   :focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 3px;
   }
+
+  summary {
+    cursor: pointer;
+    list-style: none;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
 }
 
 @layer components {
   /* Page gutter and width. */
   .shell {
-    @apply mx-auto w-full max-w-[76rem] px-4 sm:px-6 lg:px-8;
+    @apply mx-auto w-full max-w-[75rem] px-4 sm:px-6 lg:px-10;
   }
 
-  /* Drafting-paper grid behind the first screen, fading out downwards. */
-  .grid-paper {
-    background-image:
-      linear-gradient(to right, var(--line) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--line) 1px, transparent 1px);
-    background-size: 3rem 3rem;
-    mask-image: radial-gradient(ellipse 90% 80% at 60% 0%, black 30%, transparent 78%);
+  /* Vertical rhythm of a page section. */
+  .band {
+    @apply py-14 sm:py-[4.5rem];
   }
 
-  /* Small monospace label used above headings and inside cards. */
-  .label-mono {
-    @apply font-mono text-[0.72rem] leading-none tracking-[0.14em] uppercase;
+  /* Small uppercase label above headings. */
+  .eyebrow {
+    @apply text-[0.8125rem] leading-snug font-semibold tracking-[0.06em] text-signal uppercase;
   }
 
-  /* Native range input drawn as a thin rule with a square handle. */
+  /* Small uppercase label inside cards. */
+  .label {
+    @apply text-[0.8125rem] leading-snug font-semibold tracking-[0.05em] text-subtle uppercase;
+  }
+
+  .h2 {
+    @apply text-[1.7rem] leading-[1.12] font-bold tracking-[-0.025em] sm:text-[2.35rem];
+  }
+
+  /* Native range input: a thin track with a round handle. */
   .range {
     @apply h-11 w-full cursor-pointer appearance-none bg-transparent;
     --fill: 50%;
   }
   .range::-webkit-slider-runnable-track {
-    height: 2px;
+    height: 4px;
+    border-radius: 2px;
     background: linear-gradient(
       to right,
       var(--signal) var(--fill),
-      var(--input) var(--fill)
+      var(--border-strong) var(--fill)
     );
   }
   .range::-moz-range-track {
-    height: 2px;
-    background: var(--input);
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border-strong);
   }
   .range::-moz-range-progress {
-    height: 2px;
+    height: 4px;
+    border-radius: 2px;
     background: var(--signal);
   }
   .range::-webkit-slider-thumb {
     appearance: none;
-    width: 1.25rem;
-    height: 1.25rem;
-    margin-top: calc(-0.625rem + 1px);
+    width: 1.375rem;
+    height: 1.375rem;
+    margin-top: calc(-0.6875rem + 2px);
     background: var(--signal);
     border: 3px solid var(--background);
-    outline: 1px solid var(--signal);
-    border-radius: 2px;
+    box-shadow: 0 0 0 1px var(--signal);
+    border-radius: 50%;
   }
   .range::-moz-range-thumb {
-    width: 0.875rem;
-    height: 0.875rem;
+    width: 1rem;
+    height: 1rem;
     background: var(--signal);
     border: 3px solid var(--background);
-    outline: 1px solid var(--signal);
-    border-radius: 2px;
+    box-shadow: 0 0 0 1px var(--signal);
+    border-radius: 50%;
   }
   .range:focus-visible {
     outline: none;
@@ -190,36 +215,6 @@
   }
 }
 
-/* The dot that runs down the pipeline wire: its wrapper is as tall as the
-   wire and slides by its own height, so only transform is animated. */
-@keyframes signal {
-  0% {
-    transform: translateY(0);
-    opacity: 0;
-  }
-  6%,
-  90% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-}
-
-/* Each pipeline node lights up as the dot passes it. */
-@keyframes node-on {
-  0%,
-  22%,
-  100% {
-    opacity: 0.35;
-  }
-  4%,
-  14% {
-    opacity: 1;
-  }
-}
-
 @keyframes rise {
   from {
     opacity: 0;
@@ -231,14 +226,15 @@
   }
 }
 
-/* Like `rise`, but never hides the element: used for the first-screen text,
-   which has to be readable from the very first paint. */
-@keyframes settle {
+/* A check mark on the first-screen list being ticked. */
+@keyframes tick {
   from {
-    transform: translateY(0.75rem);
+    transform: scale(0.4);
+    opacity: 0;
   }
   to {
     transform: none;
+    opacity: 1;
   }
 }
 

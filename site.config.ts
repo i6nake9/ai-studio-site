@@ -12,6 +12,12 @@ export const siteConfig = {
   /** Optional e-mail for people who do not use Telegram. */
   email: "",
 
+  /**
+   * The person a client talks to. While `name` is empty, the block shows no
+   * name and no photo. `photo` is a file in `public/`, e.g. "founder.jpg".
+   */
+  founder: { name: "", photo: "" },
+
   /** URL that accepts lead POSTs. While empty, the form hands the lead over through Telegram. */
   leadEndpoint: "",
 
@@ -26,7 +32,7 @@ export const siteConfig = {
   /** UAH per 1 USD for the calculator (NBU rate on 2026-11-25, rounded). */
   uahPerUsd: 45,
 
-  /** Price ranges in USD, shown in the FAQ. */
+  /** Price ranges in USD, shown in the price cards, the FAQ and the calculator notes. */
   prices: {
     audit: [0, 150],
     pilot: [500, 1500],

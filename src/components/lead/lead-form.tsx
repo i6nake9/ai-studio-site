@@ -112,7 +112,7 @@ export function LeadForm({ roi, onSent }: LeadFormProps) {
   if (!channels.any) {
     return (
       <div role="status">
-        <h3 className="font-display text-xl leading-tight font-medium">
+        <h3 className="text-xl leading-tight font-bold">
           {t.notReady.title}
         </h3>
         <p className="mt-3 text-muted-foreground">{t.notReady.text}</p>
@@ -126,7 +126,7 @@ export function LeadForm({ roi, onSent }: LeadFormProps) {
         <h3
           ref={resultHeading}
           tabIndex={-1}
-          className="font-display text-xl leading-tight font-medium text-signal outline-none"
+          className="text-xl leading-tight font-bold text-signal outline-none"
         >
           {t.sent.title}
         </h3>
@@ -144,7 +144,7 @@ export function LeadForm({ roi, onSent }: LeadFormProps) {
         <h3
           ref={resultHeading}
           tabIndex={-1}
-          className="font-display text-xl leading-tight font-medium outline-none"
+          className="text-xl leading-tight font-bold outline-none"
         >
           {t.fallback.title}
         </h3>
@@ -152,13 +152,13 @@ export function LeadForm({ roi, onSent }: LeadFormProps) {
           {telegram ? t.fallback.text : t.fallback.textNoTelegram}
         </p>
 
-        <p id={`${id}-message-label`} className="label-mono mt-6 text-muted-foreground">
+        <p id={`${id}-message-label`} className="label mt-6">
           {t.fallback.messageLabel}
         </p>
         <pre
           aria-labelledby={`${id}-message-label`}
           tabIndex={0}
-          className="mt-3 max-h-56 overflow-y-auto border border-input bg-background/60 p-4 font-mono text-sm break-words whitespace-pre-wrap select-all"
+          className="mt-2 max-h-56 overflow-y-auto rounded-lg border border-input bg-background p-4 font-mono text-sm break-words whitespace-pre-wrap select-all"
         >
           {message}
         </pre>
@@ -210,14 +210,14 @@ export function LeadForm({ roi, onSent }: LeadFormProps) {
       method="post"
       onSubmit={handleSubmit}
       noValidate
-      className="space-y-5"
+      className="space-y-4"
     >
       {FIELDS.map((field) => {
         const inputId = `${id}-${field}`;
         const error = errors[field];
         return (
           <div key={field}>
-            <label htmlFor={inputId} className="block text-[0.95rem] leading-snug font-medium">
+            <label htmlFor={inputId} className="block text-[0.9375rem] leading-snug font-medium">
               {t.fields[field].label}
             </label>
             <input
@@ -236,7 +236,7 @@ export function LeadForm({ roi, onSent }: LeadFormProps) {
                 if (error) setErrors((prev) => ({ ...prev, [field]: undefined }));
               }}
               className={cn(
-                "mt-2 h-12 w-full min-w-0 rounded-[3px] border border-input bg-background/60 px-3.5 text-base outline-none placeholder:text-muted-foreground/60 focus-visible:border-signal",
+                "mt-1.5 h-[3.25rem] w-full min-w-0 rounded-lg border border-input bg-background px-4 text-base placeholder:text-subtle focus-visible:border-signal",
                 error && "border-destructive",
               )}
             />

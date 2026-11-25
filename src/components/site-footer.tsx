@@ -2,44 +2,88 @@ import Link from "next/link";
 
 import { BrandMark } from "@/components/brand-mark";
 import { uk } from "@/content/uk";
-import { telegramUrl } from "@/lib/contacts";
+import { telegramNick, telegramUrl } from "@/lib/contacts";
 
 import { siteConfig } from "../../site.config";
 
+const linkClass =
+  "inline-flex min-h-9 items-center text-muted-foreground hover:text-foreground";
+
 export function SiteFooter() {
   const t = uk.footer;
+  const email = siteConfig.email.trim();
   return (
-    <footer className="mt-auto border-t border-border">
-      <div className="shell flex flex-col gap-6 py-10 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <BrandMark />
-          <p className="mt-3 max-w-sm text-sm text-muted-foreground">{t.tagline}</p>
-        </div>
-        <ul className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
-          {telegramUrl ? (
-            <li>
-              <a
-                href={telegramUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-11 items-center hover:text-foreground"
-              >
-                {t.telegram}
-              </a>
-            </li>
+    // Bottom padding on phones leaves room for the bar fixed to the screen edge.
+    <footer className="on-dark mt-auto border-t border-border pt-10 pb-28 text-[0.9375rem] leading-normal md:pb-8">
+      <div className="shell">
+        <div className="grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-[1.3fr_1.2fr_1fr_1fr]">
+          <div>
+            <BrandMark />
+            <p className="mt-3 max-w-xs text-muted-foreground">{t.tagline}</p>
+          </div>
+
+          <nav aria-label={t.servicesTitle}>
+            <p className="label !text-foreground">{t.servicesTitle}</p>
+            <ul className="mt-2">
+              {uk.solutions.items.map((item) => (
+                <li key={item.slug}>
+                  <Link href={`/poslugy/${item.slug}/`} className={linkClass}>
+                    {item.short}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <nav aria-label={t.studioTitle}>
+            <p className="label !text-foreground">{t.studioTitle}</p>
+            <ul className="mt-2">
+              {t.studioLinks.map((item) => (
+                <li key={item.href}>
+                  <Link href={`/${item.href}`} className={linkClass}>
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <Link href="/privacy/" className={linkClass}>
+                  {t.privacy}
+                </Link>
+              </li>
+            </ul>
+          </nav>
+
+          {telegramUrl || email ? (
+            <div>
+              <p className="label !text-foreground">{t.contactsTitle}</p>
+              <ul className="mt-2">
+                {telegramUrl ? (
+                  <li>
+                    <a
+                      href={telegramUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex min-h-9 items-center font-semibold text-signal hover:text-foreground"
+                    >
+                      {t.telegram} @{telegramNick}
+                    </a>
+                  </li>
+                ) : null}
+                {email ? (
+                  <li>
+                    <a href={`mailto:${email}`} className={linkClass}>
+                      {email}
+                    </a>
+                  </li>
+                ) : null}
+              </ul>
+            </div>
           ) : null}
-          <li>
-            <Link
-              href="/privacy/"
-              className="inline-flex min-h-11 items-center hover:text-foreground"
-            >
-              {t.privacy}
-            </Link>
-          </li>
-          <li className="label-mono text-muted-foreground/80">
-            © 2026 {siteConfig.brand}
-          </li>
-        </ul>
+        </div>
+
+        <p className="mt-8 border-t border-border pt-5 text-sm text-muted-foreground">
+          © 2026 {siteConfig.brand}
+        </p>
       </div>
     </footer>
   );
