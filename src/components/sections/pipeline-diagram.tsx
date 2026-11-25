@@ -7,7 +7,7 @@ import { uk } from "@/content/uk";
 export function PipelineDiagram() {
   const { caption, nodes } = uk.hero.diagram;
   return (
-    <figure className="relative border border-border bg-card/70 p-5 backdrop-blur-sm sm:p-7">
+    <figure className="relative border border-border bg-card/80 p-5 sm:p-7">
       {/* drafting crop marks */}
       <span aria-hidden="true" className="absolute -top-px -left-px size-3 border-t-2 border-l-2 border-signal" />
       <span aria-hidden="true" className="absolute -right-px -bottom-px size-3 border-r-2 border-b-2 border-signal" />

@@ -11,7 +11,7 @@ export function Hero() {
       <div aria-hidden="true" className="grid-paper pointer-events-none absolute inset-0" />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -top-40 right-[-10%] size-[38rem] rounded-full bg-signal/10 blur-[120px]"
+        className="pointer-events-none absolute -top-56 right-[-15%] size-[52rem] bg-[radial-gradient(closest-side,color-mix(in_oklch,var(--signal)_13%,transparent),transparent)]"
       />
 
       <div className="shell relative grid gap-12 py-14 sm:py-20 lg:grid-cols-[1.2fr_0.8fr] lg:items-center lg:gap-14 lg:py-28">

@@ -11,7 +11,7 @@ export function LeadSection() {
     <section id="lead" className="relative overflow-hidden border-t border-border py-20 sm:py-28">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -bottom-56 left-[-10%] size-[36rem] rounded-full bg-signal/10 blur-[120px]"
+        className="pointer-events-none absolute -bottom-72 left-[-15%] size-[50rem] bg-[radial-gradient(closest-side,color-mix(in_oklch,var(--signal)_12%,transparent),transparent)]"
       />
       <div className="shell relative grid gap-12 lg:grid-cols-[1fr_0.9fr] lg:gap-16">
         <div>

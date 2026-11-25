@@ -173,33 +173,31 @@ export function RoiCalculator() {
 
           {/* result */}
           <div className="flex flex-col border-t border-border bg-card/60 p-6 sm:p-9 lg:border-t-0 lg:border-l">
-            <dl aria-live="polite" className="space-y-7">
-              <div>
+            <dl aria-live="polite" className="grid gap-7 sm:grid-cols-2">
+              <div className="border-b border-border pb-7 sm:col-span-2">
                 <dt className="label-mono text-muted-foreground">{t.results.yearly}</dt>
                 <dd className="mt-3 font-display text-[2rem] leading-none font-medium text-signal tabular-nums sm:text-5xl">
                   {formatMoney(result.yearlySaving, currency)}
                 </dd>
               </div>
-              <div className="grid gap-7 border-t border-border pt-7 sm:grid-cols-2">
-                <div>
-                  <dt className="label-mono text-muted-foreground">{t.results.hours}</dt>
+              <div>
+                <dt className="label-mono text-muted-foreground">{t.results.hours}</dt>
+                <dd className="mt-3 font-display text-2xl leading-none font-medium tabular-nums">
+                  {formatNumber(result.hoursFreedPerMonth)}{" "}
+                  <span className="font-sans text-base font-normal text-muted-foreground">
+                    {t.results.hoursUnit}
+                  </span>
+                </dd>
+              </div>
+              <div>
+                <dt className="label-mono text-muted-foreground">{t.results.payback}</dt>
+                {result.paybackMonths === null ? (
+                  <dd className="mt-3 text-[0.95rem] text-amber">{t.longPayback}</dd>
+                ) : (
                   <dd className="mt-3 font-display text-2xl leading-none font-medium tabular-nums">
-                    {formatNumber(result.hoursFreedPerMonth)}{" "}
-                    <span className="font-sans text-base font-normal text-muted-foreground">
-                      {t.results.hoursUnit}
-                    </span>
+                    {formatMonths(result.paybackMonths)}
                   </dd>
-                </div>
-                <div>
-                  <dt className="label-mono text-muted-foreground">{t.results.payback}</dt>
-                  {result.paybackMonths === null ? (
-                    <dd className="mt-3 text-[0.95rem] text-amber">{t.longPayback}</dd>
-                  ) : (
-                    <dd className="mt-3 font-display text-2xl leading-none font-medium tabular-nums">
-                      {formatMonths(result.paybackMonths)}
-                    </dd>
-                  )}
-                </div>
+                )}
               </div>
             </dl>
 

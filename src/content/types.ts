@@ -19,7 +19,6 @@ export interface Dictionary {
   header: {
     nav: { href: string; label: string }[];
     cta: string;
-    homeLabel: string;
     navLabel: string;
   };
 

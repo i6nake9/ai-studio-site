@@ -14,14 +14,14 @@ interface SiteHeaderProps {
 export function SiteHeader({ variant = "home" }: SiteHeaderProps) {
   const t = uk.header;
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-border bg-background/95">
       <div className="shell flex h-16 items-center justify-between gap-4">
         {variant === "home" ? (
-          <a href="#top" aria-label={t.homeLabel}>
+          <a href="#top">
             <BrandMark />
           </a>
         ) : (
-          <Link href="/" aria-label={uk.privacy.back}>
+          <Link href="/">
             <BrandMark />
           </Link>
         )}

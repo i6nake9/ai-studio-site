@@ -25,7 +25,7 @@ const LeadContext = createContext<LeadContextValue | null>(null);
 export function LeadProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [roi, setRoi] = useState<LeadRoi | undefined>(undefined);
-  /** Bumped on every opening so the form starts empty each time. */
+  /** Counts openings: the dialog uses it to start with an empty form each time. */
   const [session, setSession] = useState(0);
 
   const open = useCallback((nextRoi?: LeadRoi) => {
@@ -41,9 +41,9 @@ export function LeadProvider({ children }: { children: ReactNode }) {
     <LeadContext.Provider value={value}>
       {children}
       <LeadDialog
-        key={session}
         open={isOpen}
         onOpenChange={setIsOpen}
+        session={session}
         roi={roi}
       />
     </LeadContext.Provider>

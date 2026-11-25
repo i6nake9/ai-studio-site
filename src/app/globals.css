@@ -1,8 +1,4 @@
 @import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
-
-@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
@@ -105,6 +101,11 @@
   p,
   li {
     text-wrap: pretty;
+  }
+
+  /* The page behind the lead dialog must not scroll. */
+  html:has(dialog[open]) {
+    overflow: hidden;
   }
 
   ::selection {

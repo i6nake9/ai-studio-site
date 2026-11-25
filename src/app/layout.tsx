@@ -9,20 +9,21 @@ import "./globals.css";
 
 const display = Unbounded({
   variable: "--font-unbounded",
-  subsets: ["cyrillic", "latin"],
+  // `subsets` only chooses what to preload: Latin still loads when needed.
+  subsets: ["cyrillic"],
   weight: ["500", "700"],
   display: "swap",
 });
 
 const sans = Onest({
   variable: "--font-onest",
-  subsets: ["cyrillic", "latin"],
+  subsets: ["cyrillic"],
   display: "swap",
 });
 
 const mono = JetBrains_Mono({
   variable: "--font-jetbrains",
-  subsets: ["cyrillic", "latin"],
+  subsets: ["cyrillic"],
   weight: ["400", "500"],
   display: "swap",
   preload: false,
@@ -64,7 +65,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="uk"
-      className={`dark ${display.variable} ${sans.variable} ${mono.variable} antialiased`}
+      className={`${display.variable} ${sans.variable} ${mono.variable} antialiased`}
     >
       <body className="flex min-h-dvh flex-col">
         <LeadProvider>{children}</LeadProvider>

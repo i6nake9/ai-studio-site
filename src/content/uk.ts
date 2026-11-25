@@ -32,7 +32,6 @@ export const uk: Dictionary = {
       { href: "#faq", label: "Питання" },
     ],
     cta: "Безкоштовний аудит",
-    homeLabel: "На початок сторінки",
     navLabel: "Розділи сторінки",
   },
 

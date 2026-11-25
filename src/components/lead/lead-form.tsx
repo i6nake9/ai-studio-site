@@ -3,8 +3,6 @@
 import { type FormEvent, useEffect, useId, useRef, useState } from "react";
 
 import { ctaPrimary, ctaSecondary } from "@/components/cta";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { uk } from "@/content/uk";
 import { telegramNick } from "@/lib/contacts";
 import {
@@ -51,8 +49,8 @@ export function LeadForm({ roi }: LeadFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
 
   // Move focus to the new screen's heading so it is announced and visible.
-  // Deferred by a frame: the dialog's focus trap reacts to the submit button
-  // disappearing and would otherwise take the focus back.
+  // Deferred by a frame so it runs after the browser has dealt with the
+  // submit button, which had the focus, disappearing.
   useEffect(() => {
     if (screen.kind !== "sent" && screen.kind !== "fallback") return;
     const frame = requestAnimationFrame(() => resultHeading.current?.focus());
@@ -196,10 +194,10 @@ export function LeadForm({ roi }: LeadFormProps) {
         const error = errors[field];
         return (
           <div key={field}>
-            <Label htmlFor={inputId} className="text-[0.95rem] leading-snug">
+            <label htmlFor={inputId} className="block text-[0.95rem] leading-snug font-medium">
               {t.fields[field].label}
-            </Label>
-            <Input
+            </label>
+            <input
               id={inputId}
               name={field}
               type="text"
@@ -215,7 +213,7 @@ export function LeadForm({ roi }: LeadFormProps) {
                 if (error) setErrors((prev) => ({ ...prev, [field]: undefined }));
               }}
               className={cn(
-                "mt-2 h-12 rounded-[3px] bg-background/60 px-3.5 text-base placeholder:text-muted-foreground/60",
+                "mt-2 h-12 w-full min-w-0 rounded-[3px] border border-input bg-background/60 px-3.5 text-base outline-none placeholder:text-muted-foreground/60 focus-visible:border-signal",
                 error && "border-destructive",
               )}
             />
