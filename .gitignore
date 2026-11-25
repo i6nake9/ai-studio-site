@@ -43,3 +43,6 @@ next-env.d.ts
 # local working notes
 docs/
 .superpowers/
+
+# server deployment files: host names and paths stay local
+/deploy/
