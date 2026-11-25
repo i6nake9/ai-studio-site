@@ -111,6 +111,7 @@ export interface Dictionary {
     privacyLink: string;
     dialogTitle: string;
     dialogText: string;
+    dialogClose: string;
     roiAttached: string;
     sent: TitledText;
     fallback: {

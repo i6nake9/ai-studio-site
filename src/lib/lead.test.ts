@@ -6,6 +6,7 @@ import {
   mailtoLink,
   normalizeLead,
   normalizeTelegramNick,
+  prepareLead,
   submitLead,
   telegramLink,
   validateLead,
@@ -181,4 +182,34 @@ test("an endpoint that never answers falls back after the timeout", async () => 
   expect(await submitLead("https://example.test/lead", {}, never, 20)).toBe(
     "fallback",
   );
+});
+
+test("prepareLead reports every empty field and builds no message", () => {
+  expect(prepareLead({ name: " ", business: "", contact: "\n" }, "", "Nerutyna")).toEqual({
+    status: "invalid",
+    errors: { name: "required", business: "required", contact: "required" },
+  });
+});
+
+test("prepareLead drops a submission whose bot trap is filled", () => {
+  expect(prepareLead(lead, "http://spam.example", "Nerutyna")).toEqual({
+    status: "spam",
+  });
+});
+
+test("prepareLead returns the cleaned fields and the message, with the calculation", () => {
+  const input = {
+    employees: 5,
+    monthlyCost: 700,
+    routinePercent: 40,
+    currency: "USD" as const,
+    uahPerUsd: 45,
+  };
+  const roi = { input, result: calculateRoi(input) };
+  const ready = prepareLead({ ...lead, name: "  Олена " }, "", "Nerutyna", roi);
+  expect(ready.status).toBe("ready");
+  if (ready.status !== "ready") return;
+  expect(ready.lead.name).toBe("Олена");
+  expect(ready.message).toBe(buildLeadMessage(lead, "Nerutyna", roi));
+  expect(ready.message).toMatch(/Розрахунок: 5 співробітників/);
 });

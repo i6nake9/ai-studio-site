@@ -1,6 +1,7 @@
 import { Comparison } from "@/components/sections/comparison";
 import { Faq } from "@/components/sections/faq";
 import { Hero } from "@/components/sections/hero";
+import { LeadSection } from "@/components/sections/lead-section";
 import { Pains } from "@/components/sections/pains";
 import { Process } from "@/components/sections/process";
 import { RoiCalculator } from "@/components/sections/roi-calculator";
@@ -22,7 +23,7 @@ export default function HomePage() {
         <Comparison />
         <Process />
         <Faq />
-        <div id="lead" />
+        <LeadSection />
       </main>
       <SiteFooter />
     </>

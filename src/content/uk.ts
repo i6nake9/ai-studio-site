@@ -382,6 +382,7 @@ export const uk: Dictionary = {
     privacyLink: "Конфіденційність",
     dialogTitle: "Заявка на безкоштовний аудит",
     dialogText: "Три поля. Відповімо за вказаним контактом.",
+    dialogClose: "Закрити",
     roiAttached: "До заявки додамо ваш розрахунок з калькулятора.",
     sent: {
       title: "Заявку отримано",

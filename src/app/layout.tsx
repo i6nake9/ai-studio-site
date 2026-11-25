@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { JetBrains_Mono, Onest, Unbounded } from "next/font/google";
 
+import { LeadProvider } from "@/components/lead/lead-provider";
 import { uk } from "@/content/uk";
 
 import { siteConfig } from "../../site.config";
@@ -65,7 +66,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="uk"
       className={`dark ${display.variable} ${sans.variable} ${mono.variable} antialiased`}
     >
-      <body className="flex min-h-dvh flex-col">{children}</body>
+      <body className="flex min-h-dvh flex-col">
+        <LeadProvider>{children}</LeadProvider>
+      </body>
     </html>
   );
 }

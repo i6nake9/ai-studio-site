@@ -83,6 +83,29 @@ export function buildLeadMessage(
   return lines.join("\n");
 }
 
+export type PreparedLead =
+  | { status: "invalid"; errors: FieldErrors }
+  /** The hidden bot-trap field was filled: drop the lead without telling the sender. */
+  | { status: "spam" }
+  | { status: "ready"; lead: LeadFields; message: string };
+
+/** Decides what a form submission is before anything is sent anywhere. */
+export function prepareLead(
+  fields: LeadFields,
+  trap: string,
+  brand: string,
+  roi?: LeadRoi,
+): PreparedLead {
+  if (trap.trim()) return { status: "spam" };
+  const errors = validateLead(fields);
+  if (Object.keys(errors).length > 0) return { status: "invalid", errors };
+  return {
+    status: "ready",
+    lead: normalizeLead(fields),
+    message: buildLeadMessage(fields, brand, roi),
+  };
+}
+
 /**
  * Accepts "@nick", "nick", "t.me/nick" or "https://t.me/nick".
  * Returns the bare username, or null when it cannot be a Telegram username.
