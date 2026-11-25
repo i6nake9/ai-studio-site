@@ -45,10 +45,15 @@ export const MAX_PAYBACK_MONTHS = 12;
 const UAH_STEP = 500;
 
 /** Rough project price in USD by team size, taken from the price list. */
+export const IMPLEMENTATION_TIERS = [
+  { maxEmployees: 5, costUsd: 1500 },
+  { maxEmployees: 20, costUsd: 4000 },
+  { maxEmployees: Infinity, costUsd: 6000 },
+] as const;
+
 function implementationCostUsd(employees: number): number {
-  if (employees <= 5) return 1500;
-  if (employees <= 20) return 4000;
-  return 6000;
+  const tier = IMPLEMENTATION_TIERS.find((t) => employees <= t.maxEmployees);
+  return (tier ?? IMPLEMENTATION_TIERS[IMPLEMENTATION_TIERS.length - 1]).costUsd;
 }
 
 function clamp(value: number, min: number, max: number): number {
