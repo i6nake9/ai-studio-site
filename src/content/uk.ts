@@ -239,7 +239,7 @@ export const uk: Dictionary = {
           "Нова Пошта",
           "Укрпошта",
           "Monobank",
-          "PrivatBank",
+          "ПриватБанк",
           "Rozetka",
           "Prom.ua",
           "Хорошоп",
@@ -524,7 +524,7 @@ export const uk: Dictionary = {
       {
         title: "Підтримка",
         price: range(prices.support),
-        text: "На місяць. Стабільність, витрати на ШІ, нові процеси.",
+        text: "На місяць. Стабільність, витрати на ШІ, дрібні зміни.",
       },
     ],
   },
