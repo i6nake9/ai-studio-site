@@ -4,7 +4,7 @@ import { type FormEvent, useEffect, useId, useRef, useState } from "react";
 
 import { ctaPrimary, ctaSecondary } from "@/components/cta";
 import { uk } from "@/content/uk";
-import { telegramNick } from "@/lib/contacts";
+import { channels, telegramNick } from "@/lib/contacts";
 import {
   FIELD_LIMITS,
   type FieldErrors,
@@ -35,10 +35,12 @@ type CopyState = "idle" | "copied" | "failed";
 interface LeadFormProps {
   /** Calculator figures to attach to the lead. */
   roi?: LeadRoi;
+  /** Called once the lead has really been delivered. */
+  onSent?: () => void;
 }
 
 /** The lead form. Used both in the dialog and in the last section of the page. */
-export function LeadForm({ roi }: LeadFormProps) {
+export function LeadForm({ roi, onSent }: LeadFormProps) {
   const id = useId();
   const [fields, setFields] = useState<LeadFields>(EMPTY);
   const [trap, setTrap] = useState("");
@@ -62,10 +64,6 @@ export function LeadForm({ roi }: LeadFormProps) {
     if (screen.kind === "submitting") return;
 
     const prepared = prepareLead(fields, trap, siteConfig.brand, roi);
-    if (prepared.status === "spam") {
-      setScreen({ kind: "sent" });
-      return;
-    }
     if (prepared.status === "invalid") {
       setErrors(prepared.errors);
       const first = FIELDS.find((field) => prepared.errors[field]);
@@ -78,18 +76,24 @@ export function LeadForm({ roi }: LeadFormProps) {
     }
 
     setErrors({});
+    setCopy("idle");
+    // A tripped bot trap is never posted and never answered with "sent".
+    if (prepared.trapped) {
+      setScreen({ kind: "fallback", message: prepared.message });
+      return;
+    }
     setScreen({ kind: "submitting" });
     const outcome = await submitLead(siteConfig.leadEndpoint, {
       ...prepared.lead,
       message: prepared.message,
       roi: roi ?? null,
     });
-    setCopy("idle");
-    setScreen(
-      outcome === "sent"
-        ? { kind: "sent" }
-        : { kind: "fallback", message: prepared.message },
-    );
+    if (outcome === "sent") {
+      setScreen({ kind: "sent" });
+      onSent?.();
+    } else {
+      setScreen({ kind: "fallback", message: prepared.message });
+    }
   }
 
   async function copyMessage(message: string) {
@@ -101,6 +105,19 @@ export function LeadForm({ roi }: LeadFormProps) {
       // on screen, so the visitor can select it by hand.
       setCopy("failed");
     }
+  }
+
+  // No Telegram, no e-mail, no endpoint: a filled form would go nowhere, so
+  // the visitor is told that instead of being asked to fill it.
+  if (!channels.any) {
+    return (
+      <div role="status">
+        <h3 className="font-display text-xl leading-tight font-medium">
+          {t.notReady.title}
+        </h3>
+        <p className="mt-3 text-muted-foreground">{t.notReady.text}</p>
+      </div>
+    );
   }
 
   if (screen.kind === "sent") {
@@ -188,7 +205,13 @@ export function LeadForm({ roi }: LeadFormProps) {
 
   const submitting = screen.kind === "submitting";
   return (
-    <form ref={formRef} onSubmit={handleSubmit} noValidate className="space-y-5">
+    <form
+      ref={formRef}
+      method="post"
+      onSubmit={handleSubmit}
+      noValidate
+      className="space-y-5"
+    >
       {FIELDS.map((field) => {
         const inputId = `${id}-${field}`;
         const error = errors[field];
@@ -229,10 +252,10 @@ export function LeadForm({ roi }: LeadFormProps) {
       {/* Bot trap: invisible to people, tempting to form-filling scripts. */}
       <div aria-hidden="true" className="absolute -left-[9999px] size-px overflow-hidden">
         <label>
-          Company website
+          Не заповнюйте це поле
           <input
             type="text"
-            name="company_website"
+            name="lead_check_7q"
             tabIndex={-1}
             autoComplete="off"
             value={trap}

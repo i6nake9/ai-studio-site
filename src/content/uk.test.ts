@@ -65,3 +65,15 @@ test("scenarios say they are examples, not client stories", () => {
 test("no empty strings", () => {
   expect(strings.filter(({ text }) => !text.trim())).toEqual([]);
 });
+
+test("the calculator says what its figure is and what it leaves out", () => {
+  expect(uk.calculator.results.yearly).not.toMatch(/економія/i);
+  const method = uk.calculator.how.join(" ");
+  expect(method).toMatch(/підтримк/i);
+  expect(method).toMatch(/не входять/);
+});
+
+test("there is a text for the state where leads have nowhere to go", () => {
+  expect(uk.lead.notReady.title.trim()).not.toBe("");
+  expect(uk.lead.notReady.text.trim()).not.toBe("");
+});

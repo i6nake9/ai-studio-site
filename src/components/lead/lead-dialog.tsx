@@ -4,24 +4,34 @@ import { useEffect, useId, useRef } from "react";
 
 import { uk } from "@/content/uk";
 import type { LeadRoi } from "@/lib/lead";
+import { isBackdropDismiss } from "@/lib/lead-dialog-state";
 
 import { LeadForm } from "./lead-form";
 
 interface LeadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Changes on every opening, so the form starts empty each time. */
+  /** A new number means a new, empty form; it changes only after a lead is sent. */
   session: number;
   roi?: LeadRoi;
+  onSent: () => void;
 }
 
 /**
  * The lead form in a modal window. Built on the native <dialog>: the browser
  * traps focus, closes on Esc and returns focus to the button that opened it.
  */
-export function LeadDialog({ open, onOpenChange, session, roi }: LeadDialogProps) {
+export function LeadDialog({
+  open,
+  onOpenChange,
+  session,
+  roi,
+  onSent,
+}: LeadDialogProps) {
   const t = uk.lead;
   const ref = useRef<HTMLDialogElement>(null);
+  /** Where the mouse button went down, to tell a backdrop click from a drag. */
+  const pressTarget = useRef<EventTarget | null>(null);
   const titleId = useId();
   const textId = useId();
 
@@ -38,10 +48,16 @@ export function LeadDialog({ open, onOpenChange, session, roi }: LeadDialogProps
       aria-labelledby={titleId}
       aria-describedby={textId}
       onClose={() => onOpenChange(false)}
-      // The dialog box itself has no padding, so a click whose target is the
+      // The dialog box itself has no padding, so an event whose target is the
       // <dialog> element landed on the backdrop.
+      onMouseDown={(event) => {
+        pressTarget.current = event.target;
+      }}
       onClick={(event) => {
-        if (event.target === event.currentTarget) onOpenChange(false);
+        if (isBackdropDismiss(pressTarget.current, event.target, event.currentTarget)) {
+          onOpenChange(false);
+        }
+        pressTarget.current = null;
       }}
       className="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-lg overflow-y-auto rounded-[3px] border border-input bg-popover p-0 text-popover-foreground backdrop:bg-black/70 open:animate-rise"
     >
@@ -55,7 +71,7 @@ export function LeadDialog({ open, onOpenChange, session, roi }: LeadDialogProps
             {t.dialogText}
           </p>
           <div className="mt-6">
-            <LeadForm key={session} roi={roi} />
+            <LeadForm key={session} roi={roi} onSent={onSent} />
           </div>
           {/* Last in the markup so the first field, not this button, gets
               the focus when the dialog opens. */}

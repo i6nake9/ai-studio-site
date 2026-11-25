@@ -6,10 +6,11 @@ import {
   useCallback,
   useContext,
   useMemo,
-  useState,
+  useReducer,
 } from "react";
 
 import type { LeadRoi } from "@/lib/lead";
+import { initialLeadDialog, leadDialogReducer } from "@/lib/lead-dialog-state";
 
 import { LeadDialog } from "./lead-dialog";
 
@@ -23,28 +24,29 @@ interface LeadContextValue {
 const LeadContext = createContext<LeadContextValue | null>(null);
 
 export function LeadProvider({ children }: { children: ReactNode }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [roi, setRoi] = useState<LeadRoi | undefined>(undefined);
-  /** Counts openings: the dialog uses it to start with an empty form each time. */
-  const [session, setSession] = useState(0);
+  const [state, dispatch] = useReducer(leadDialogReducer, initialLeadDialog);
 
-  const open = useCallback((nextRoi?: LeadRoi) => {
-    setRoi(nextRoi);
-    setSession((n) => n + 1);
-    setIsOpen(true);
-  }, []);
-  const close = useCallback(() => setIsOpen(false), []);
+  const open = useCallback(
+    (roi?: LeadRoi) => dispatch({ type: "open", roi }),
+    [],
+  );
+  const close = useCallback(() => dispatch({ type: "close" }), []);
+  const sent = useCallback(() => dispatch({ type: "sent" }), []);
 
-  const value = useMemo(() => ({ open, close, roi }), [open, close, roi]);
+  const value = useMemo(
+    () => ({ open, close, roi: state.roi }),
+    [open, close, state.roi],
+  );
 
   return (
     <LeadContext.Provider value={value}>
       {children}
       <LeadDialog
-        open={isOpen}
-        onOpenChange={setIsOpen}
-        session={session}
-        roi={roi}
+        open={state.isOpen}
+        onOpenChange={(next) => (next ? open(state.roi) : close())}
+        session={state.session}
+        roi={state.roi}
+        onSent={sent}
       />
     </LeadContext.Provider>
   );

@@ -19,10 +19,12 @@ test("hryvnias are written with a trailing unit", () => {
 });
 
 test("months keep one decimal with a comma", () => {
-  expect(plain(formatMonths(2.14))).toBe("2,1 міс.");
+  expect(plain(formatMonths(4.26))).toBe("4,3 міс.");
+  expect(plain(formatMonths(3))).toBe("3 міс.");
   expect(plain(formatMonths(12))).toBe("12 міс.");
 });
 
-test("less than one month is said in words", () => {
-  expect(formatMonths(0.8)).toBe("менше місяця");
+test("a payback shorter than three months is never shown as an exact figure", () => {
+  expect(plain(formatMonths(2.14))).toBe("до 3 міс.");
+  expect(plain(formatMonths(0.2))).toBe("до 3 міс.");
 });

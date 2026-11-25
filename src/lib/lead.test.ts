@@ -3,6 +3,7 @@ import { expect, test } from "vitest";
 import { calculateRoi } from "./calculator";
 import {
   buildLeadMessage,
+  leadChannels,
   mailtoLink,
   normalizeLead,
   normalizeTelegramNick,
@@ -60,7 +61,7 @@ test("lead message carries the calculator numbers", () => {
     result: calculateRoi(input),
   });
   expect(plain(msg)).toContain(
-    "Розрахунок: 5 співробітників, $700 на місяць, 40% рутини. Вивільняється 160 год на місяць, економія $8 400 на рік.",
+    "Розрахунок: 5 співробітників, $700 на місяць, 40% рутини. Вивільняється 160 год на місяць, вартість вивільненого часу $8 400 на рік.",
   );
 });
 
@@ -191,10 +192,15 @@ test("prepareLead reports every empty field and builds no message", () => {
   });
 });
 
-test("prepareLead drops a submission whose bot trap is filled", () => {
+test("a lead whose bot trap is filled is kept but marked, so it is never posted and never reported as sent", () => {
   expect(prepareLead(lead, "http://spam.example", "Nerutyna")).toEqual({
-    status: "spam",
+    status: "ready",
+    lead,
+    message: buildLeadMessage(lead, "Nerutyna"),
+    trapped: true,
   });
+  const normal = prepareLead(lead, "", "Nerutyna");
+  expect(normal.status === "ready" && normal.trapped).toBe(false);
 });
 
 test("prepareLead returns the cleaned fields and the message, with the calculation", () => {
@@ -212,4 +218,33 @@ test("prepareLead returns the cleaned fields and the message, with the calculati
   expect(ready.lead.name).toBe("Олена");
   expect(ready.message).toBe(buildLeadMessage(lead, "Nerutyna", roi));
   expect(ready.message).toMatch(/Розрахунок: 5 співробітників/);
+});
+
+test("leadChannels: with no nick, e-mail or endpoint a lead has nowhere to go", () => {
+  expect(leadChannels({ telegram: "", email: " ", leadEndpoint: "" })).toEqual({
+    telegram: false,
+    email: false,
+    endpoint: false,
+    any: false,
+  });
+});
+
+test("leadChannels: a malformed nick does not count, a valid one does", () => {
+  expect(leadChannels({ telegram: "ab", email: "", leadEndpoint: "" }).any).toBe(false);
+  expect(leadChannels({ telegram: "@nerutyna", email: "", leadEndpoint: "" })).toMatchObject({
+    telegram: true,
+    any: true,
+  });
+});
+
+test("leadChannels: an e-mail or an endpoint alone is enough", () => {
+  expect(leadChannels({ telegram: "", email: "hi@example.test", leadEndpoint: "" }).any).toBe(true);
+  expect(leadChannels({ telegram: "", email: "", leadEndpoint: "https://example.test/lead" }).any).toBe(true);
+});
+
+test("the lead message calls the yearly figure the value of freed time, not a saving", () => {
+  const input = { employees: 5, monthlyCost: 700, routinePercent: 40, currency: "USD" as const, uahPerUsd: 45 };
+  const message = buildLeadMessage(lead, "Nerutyna", { input, result: calculateRoi(input) });
+  expect(message).toMatch(/вартість вивільненого часу/);
+  expect(message).not.toMatch(/економія/i);
 });

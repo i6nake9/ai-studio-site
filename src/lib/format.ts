@@ -17,8 +17,14 @@ export function formatMoney(n: number, currency: Currency): string {
     : `${formatNumber(n)}${NBSP}грн`;
 }
 
-/** 2.14 → "2,1 міс."; anything under one month → "менше місяця". */
+/** Shortest payback shown as a figure; anything faster is "up to" this. */
+export const MIN_PAYBACK_MONTHS = 3;
+
+/**
+ * 4.26 → "4,3 міс."; anything under three months → "до 3 міс.": a rough
+ * calculator must not promise a payback of a few weeks.
+ */
 export function formatMonths(n: number): string {
-  if (n < 1) return "менше місяця";
+  if (n < MIN_PAYBACK_MONTHS) return `до${NBSP}${MIN_PAYBACK_MONTHS}${NBSP}міс.`;
   return `${oneDecimal.format(n)}${NBSP}міс.`;
 }

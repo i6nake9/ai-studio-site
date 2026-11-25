@@ -77,7 +77,7 @@ export function buildLeadMessage(
       `Розрахунок: ${input.employees} ${employeesWord(input.employees)}, ` +
         `${money(input.monthlyCost)} на місяць, ${input.routinePercent}% рутини. ` +
         `Вивільняється ${formatNumber(result.hoursFreedPerMonth)} год на місяць, ` +
-        `економія ${money(result.yearlySaving)} на рік.`,
+        `вартість вивільненого часу ${money(result.yearlySaving)} на рік.`,
     );
   }
   return lines.join("\n");
@@ -85,9 +85,17 @@ export function buildLeadMessage(
 
 export type PreparedLead =
   | { status: "invalid"; errors: FieldErrors }
-  /** The hidden bot-trap field was filled: drop the lead without telling the sender. */
-  | { status: "spam" }
-  | { status: "ready"; lead: LeadFields; message: string };
+  | {
+      status: "ready";
+      lead: LeadFields;
+      message: string;
+      /**
+       * The hidden bot-trap field was filled. Such a lead is never posted to
+       * the endpoint, and its sender is never told "sent": if autofill filled
+       * the trap for a real person, they still get the Telegram path.
+       */
+      trapped: boolean;
+    };
 
 /** Decides what a form submission is before anything is sent anywhere. */
 export function prepareLead(
@@ -96,14 +104,34 @@ export function prepareLead(
   brand: string,
   roi?: LeadRoi,
 ): PreparedLead {
-  if (trap.trim()) return { status: "spam" };
   const errors = validateLead(fields);
   if (Object.keys(errors).length > 0) return { status: "invalid", errors };
   return {
     status: "ready",
     lead: normalizeLead(fields),
     message: buildLeadMessage(fields, brand, roi),
+    trapped: trap.trim() !== "",
   };
+}
+
+export interface LeadChannels {
+  telegram: boolean;
+  email: boolean;
+  endpoint: boolean;
+  /** False when a filled form would have nowhere to go. */
+  any: boolean;
+}
+
+/** Which ways a lead can reach the studio with the current settings. */
+export function leadChannels(config: {
+  telegram: string;
+  email: string;
+  leadEndpoint: string;
+}): LeadChannels {
+  const telegram = normalizeTelegramNick(config.telegram) !== null;
+  const email = config.email.trim() !== "";
+  const endpoint = config.leadEndpoint.trim() !== "";
+  return { telegram, email, endpoint, any: telegram || email || endpoint };
 }
 
 /**

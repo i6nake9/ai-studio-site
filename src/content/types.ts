@@ -113,6 +113,8 @@ export interface Dictionary {
     dialogClose: string;
     roiAttached: string;
     sent: TitledText;
+    /** Shown instead of the form while no contact channel is configured. */
+    notReady: TitledText;
     fallback: {
       title: string;
       text: string;
