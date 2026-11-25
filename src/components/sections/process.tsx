@@ -1,3 +1,6 @@
+import Link from "next/link";
+
+import { linkAccent } from "@/components/cta";
 import { uk } from "@/content/uk";
 import { cn } from "@/lib/utils";
 
@@ -73,6 +76,9 @@ export function Process() {
         <div className="mt-9">
           <PriceCards />
         </div>
+        <Link href="/ciny/" className={`${linkAccent} mt-4`}>
+          {uk.servicePage.pricesMore} →
+        </Link>
       </div>
     </section>
   );

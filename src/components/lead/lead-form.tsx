@@ -4,6 +4,7 @@ import { type FormEvent, useEffect, useId, useRef, useState } from "react";
 
 import { ctaPrimary, ctaSecondary } from "@/components/cta";
 import { uk } from "@/content/uk";
+import { currentAd, leadPage } from "@/lib/attribution";
 import { channels, telegramUrl } from "@/lib/contacts";
 import {
   FIELD_LIMITS,
@@ -92,7 +93,7 @@ export function LeadForm({ roi, onSent }: LeadFormProps) {
       leadPayload(prepared.lead, {
         newsletter,
         consentText: t.newsletter,
-        page: window.location.pathname,
+        page: leadPage(window.location.pathname, currentAd(window.location.search)),
         roi,
       }),
     );

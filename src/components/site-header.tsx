@@ -6,6 +6,7 @@ import { LeadButton } from "@/components/lead/lead-button";
 import { MobileMenu } from "@/components/mobile-menu";
 import { uk } from "@/content/uk";
 import { telegramNick, telegramUrl } from "@/lib/contacts";
+import { navHref } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 
 interface SiteHeaderProps {
@@ -17,7 +18,7 @@ export function SiteHeader({ home = false }: SiteHeaderProps) {
   const t = uk.header;
   const links = t.nav.map((item) => ({
     label: item.label,
-    href: home ? item.href : `/${item.href}`,
+    href: navHref(item.href, home),
   }));
 
   return (
@@ -37,7 +38,7 @@ export function SiteHeader({ home = false }: SiteHeaderProps) {
           <ul className="flex items-center gap-7 text-[0.9375rem] font-medium text-muted-foreground">
             {links.map((item) => (
               <li key={item.href}>
-                {home ? (
+                {item.href.startsWith("#") ? (
                   <a href={item.href} className="transition-colors hover:text-foreground">
                     {item.label}
                   </a>
@@ -67,7 +68,7 @@ export function SiteHeader({ home = false }: SiteHeaderProps) {
             {t.cta}
           </LeadButton>
 
-          <MobileMenu label={t.menu} navLabel={t.navLabel} links={links} home={home} />
+          <MobileMenu label={t.menu} navLabel={t.navLabel} links={links} />
         </div>
       </div>
     </header>

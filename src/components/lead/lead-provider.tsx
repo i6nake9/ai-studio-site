@@ -5,10 +5,12 @@ import {
   type ReactNode,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useReducer,
 } from "react";
 
+import { rememberAd } from "@/lib/attribution";
 import type { LeadRoi } from "@/lib/lead";
 import { initialLeadDialog, leadDialogReducer } from "@/lib/lead-dialog-state";
 
@@ -25,6 +27,9 @@ const LeadContext = createContext<LeadContextValue | null>(null);
 
 export function LeadProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(leadDialogReducer, initialLeadDialog);
+
+  // An advert link is seen only on the first page of a visit: keep its labels.
+  useEffect(() => rememberAd(window.location.search), []);
 
   const open = useCallback(
     (roi?: LeadRoi) => dispatch({ type: "open", roi }),

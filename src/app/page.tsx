@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { JsonLd } from "@/components/json-ld";
 import { MobileBar } from "@/components/mobile-bar";
+import { BlogTeaser } from "@/components/sections/blog-teaser";
 import { Comparison } from "@/components/sections/comparison";
 import { Faq } from "@/components/sections/faq";
 import { Hero } from "@/components/sections/hero";
@@ -19,7 +20,7 @@ import { SiteHeader } from "@/components/site-header";
 import { uk } from "@/content/uk";
 import { telegramProfileUrl } from "@/lib/contacts";
 import { pageMeta } from "@/lib/page-meta";
-import { faqJsonLd, organizationJsonLd, pageUrl } from "@/lib/seo";
+import { faqJsonLd, organizationJsonLd, pageUrl, websiteJsonLd } from "@/lib/seo";
 
 import { siteConfig } from "../../site.config";
 
@@ -39,6 +40,7 @@ export default function HomePage() {
           email: siteConfig.email,
         })}
       />
+      <JsonLd data={websiteJsonLd({ name: siteConfig.brand, url: home })} />
       <JsonLd data={faqJsonLd(uk.faq.items)} />
       <SiteHeader home />
       <main id="top">
@@ -52,6 +54,7 @@ export default function HomePage() {
         <Scenarios />
         <OwnProjects />
         <Comparison />
+        <BlogTeaser />
         <Faq />
         <LeadSection />
       </main>

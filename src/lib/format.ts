@@ -28,3 +28,24 @@ export function formatMonths(n: number): string {
   if (n < MIN_PAYBACK_MONTHS) return `до${NBSP}${MIN_PAYBACK_MONTHS}${NBSP}міс.`;
   return `${oneDecimal.format(n)}${NBSP}міс.`;
 }
+
+const MONTHS_UK = [
+  "січня",
+  "лютого",
+  "березня",
+  "квітня",
+  "травня",
+  "червня",
+  "липня",
+  "серпня",
+  "вересня",
+  "жовтня",
+  "листопада",
+  "грудня",
+];
+
+/** "2026-11-25" → "25 листопада 2026". */
+export function formatDateUk(iso: string): string {
+  const [year, month, day] = iso.split("-").map(Number);
+  return `${day} ${MONTHS_UK[month - 1]} ${year}`;
+}

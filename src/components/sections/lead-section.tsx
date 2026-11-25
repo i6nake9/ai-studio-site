@@ -32,6 +32,11 @@ export function LeadSection() {
         </div>
 
         <div className="w-full max-w-[32.5rem] rounded-[0.875rem] border border-border bg-card p-5 sm:p-8 lg:justify-self-end">
+          <noscript>
+            <p className="mb-5 rounded-lg border border-amber/60 p-4 text-[0.9375rem] leading-normal">
+              {t.noScript}
+            </p>
+          </noscript>
           <LeadForm />
           {telegramUrl ? (
             <p className="mt-4 text-[0.9375rem] leading-normal">

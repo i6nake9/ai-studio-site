@@ -96,6 +96,7 @@ export interface Dictionary {
     processTitle: string;
     pricesTitle: string;
     pricesLead: string;
+    pricesMore: string;
     faqTitle: string;
     otherTitle: string;
   };
@@ -184,6 +185,8 @@ export interface Dictionary {
     submit: string;
     submitting: string;
     telegramDirect: string;
+    /** Shown instead of nothing when scripts are off: the form cannot send then. */
+    noScript: string;
     privacyNote: string;
     privacyLink: string;
     dialogTitle: string;
@@ -230,6 +233,8 @@ export interface Dictionary {
   privacy: {
     title: string;
     updated: string;
+    /** Description in the search result, 110–160 characters. */
+    metaDescription: string;
     sections: { title: string; text: string[] }[];
     back: string;
   };
@@ -278,4 +283,53 @@ export interface IndustryPage {
   /** Which process to take as the pilot. */
   start: string;
   faq: { question: string; answer: string }[];
+}
+
+/** A blog article that answers one question people type into search. */
+export interface Article {
+  /** Address of the page: /blog/<slug>/. */
+  slug: string;
+  /** Heading of the page. */
+  title: string;
+  /** Title in the search result, up to 60 characters. */
+  metaTitle: string;
+  /** Description in the search result, 110–160 characters. */
+  metaDescription: string;
+  /** One or two sentences for cards that link to the article. */
+  card: string;
+  /** Day of publication, YYYY-MM-DD. */
+  published: string;
+  /** The answer itself in two to four sentences. Shown first, before the details. */
+  summary: string;
+  sections: {
+    title: string;
+    text?: string[];
+    list?: string[];
+    /** Paragraphs after the list. */
+    after?: string[];
+  }[];
+  faq: { question: string; answer: string }[];
+  /** Addresses of service pages (tasks or directions) shown under the article. */
+  related: string[];
+}
+
+/** The page with prices: /ciny/. */
+export interface PricingPage {
+  metaTitle: string;
+  metaDescription: string;
+  eyebrow: string;
+  h1: string;
+  intro: string;
+  formats: { title: string; price: string; text: string; includes: string[]; badge?: string }[];
+  includesLabel: string;
+  factors: { title: string; items: string[] };
+  extra: { title: string; lead: string; items: string[] };
+  examples: {
+    title: string;
+    lead: string;
+    items: { format: string; slugs: string[] }[];
+  };
+  faqTitle: string;
+  faq: { question: string; answer: string }[];
+  calculatorLink: string;
 }

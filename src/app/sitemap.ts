@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 
+import { articles } from "@/content/articles";
 import { industries } from "@/content/industries";
 import { tasks } from "@/content/tasks";
 import { uk } from "@/content/uk";
@@ -23,6 +24,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...tasks.map((task) => page(`/poslugy/${task.slug}/`, 0.8)),
     page("/galuzi/", 0.7),
     ...industries.map((item) => page(`/galuzi/${item.slug}/`, 0.7)),
+    page("/ciny/", 0.8),
+    page("/blog/", 0.7),
+    ...articles.map((article) => ({
+      ...page(`/blog/${article.slug}/`, 0.6),
+      lastModified: article.published,
+    })),
     { url: pageUrl(siteUrl, "/privacy/"), changeFrequency: "yearly", priority: 0.2 },
   ];
 }

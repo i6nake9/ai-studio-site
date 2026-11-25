@@ -31,8 +31,7 @@ export const siteConfig = {
 
   /** Public address of the site, without a trailing slash. */
   siteUrl:
-    process.env.NEXT_PUBLIC_SITE_URL ??
-    "https://i6nake9.github.io/ai-studio-site",
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://nerutyna.com.ua",
 
   /** Hidden from search engines until the site moves to its own domain. */
   noindex: process.env.NEXT_PUBLIC_NOINDEX !== "false",

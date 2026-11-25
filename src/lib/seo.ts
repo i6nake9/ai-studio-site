@@ -112,3 +112,47 @@ export function jsonLdScript(data: unknown): string {
     .replace(/>/g, "\\u003e")
     .replace(/&/g, "\\u0026");
 }
+
+interface ArticleInput {
+  headline: string;
+  description: string;
+  url: string;
+  /** YYYY-MM-DD. */
+  published: string;
+  /** YYYY-MM-DD; the day of publication when left out. */
+  modified?: string;
+  publisherName: string;
+  publisherUrl: string;
+  logo: string;
+}
+
+export function articleJsonLd(article: ArticleInput) {
+  const studio = {
+    "@type": "Organization",
+    name: article.publisherName,
+    url: article.publisherUrl,
+  };
+  return {
+    "@context": CONTEXT,
+    "@type": "Article",
+    headline: article.headline,
+    description: article.description,
+    inLanguage: "uk",
+    url: article.url,
+    mainEntityOfPage: article.url,
+    datePublished: article.published,
+    dateModified: article.modified ?? article.published,
+    author: studio,
+    publisher: { ...studio, logo: { "@type": "ImageObject", url: article.logo } },
+  };
+}
+
+export function websiteJsonLd(site: { name: string; url: string }) {
+  return {
+    "@context": CONTEXT,
+    "@type": "WebSite",
+    name: site.name,
+    url: site.url,
+    inLanguage: "uk",
+  };
+}

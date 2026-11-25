@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { formatMoney, formatMonths, formatNumber } from "./format";
+import { formatDateUk, formatMoney, formatMonths, formatNumber } from "./format";
 
 // Intl uses non-breaking spaces as group separators; compare with plain ones.
 const plain = (s: string) => s.replace(/[  ]/g, " ");
@@ -27,4 +27,9 @@ test("months keep one decimal with a comma", () => {
 test("a payback shorter than three months is never shown as an exact figure", () => {
   expect(plain(formatMonths(2.14))).toBe("до 3 міс.");
   expect(plain(formatMonths(0.2))).toBe("до 3 міс.");
+});
+
+test("formatDateUk writes a date the way people read it in Ukrainian", () => {
+  expect(formatDateUk("2026-11-25")).toBe("25 листопада 2026");
+  expect(formatDateUk("2027-01-03")).toBe("3 січня 2027");
 });

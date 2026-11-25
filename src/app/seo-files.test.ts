@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
 
+import { articles } from "../content/articles";
 import { industries } from "../content/industries";
 import { tasks } from "../content/tasks";
 import { uk } from "../content/uk";
@@ -33,4 +34,14 @@ test("robots.txt never blocks crawling, so the noindex tag on pages stays readab
   const rules = robots().rules;
   const list = Array.isArray(rules) ? rules : [rules];
   for (const rule of list) expect(rule.disallow ?? "").not.toBe("/");
+});
+
+test("the sitemap lists the pricing page, the blog and every article", () => {
+  const urls = sitemap().map((entry) => entry.url);
+  expect(urls).toContain(`${siteConfig.siteUrl}/ciny/`);
+  expect(urls).toContain(`${siteConfig.siteUrl}/blog/`);
+  for (const article of articles) {
+    expect(urls).toContain(`${siteConfig.siteUrl}/blog/${article.slug}/`);
+  }
+  expect(new Set(urls).size).toBe(urls.length);
 });

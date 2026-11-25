@@ -8,16 +8,15 @@ import { MenuIcon } from "@/components/icons";
 interface MobileMenuProps {
   label: string;
   navLabel: string;
+  /** "#section" links scroll within the page; the rest lead to other pages. */
   links: { href: string; label: string }[];
-  /** On the home page the links scroll; elsewhere they lead back to it. */
-  home: boolean;
 }
 
 const itemClass =
   "flex min-h-12 items-center rounded-lg px-3 font-medium hover:bg-signal-soft";
 
 /** Section menu for narrow screens: a native disclosure that closes after a choice. */
-export function MobileMenu({ label, navLabel, links, home }: MobileMenuProps) {
+export function MobileMenu({ label, navLabel, links }: MobileMenuProps) {
   const details = useRef<HTMLDetailsElement>(null);
   const close = () => {
     if (details.current) details.current.open = false;
@@ -38,7 +37,7 @@ export function MobileMenu({ label, navLabel, links, home }: MobileMenuProps) {
         <ul>
           {links.map((item) => (
             <li key={item.href}>
-              {home ? (
+              {item.href.startsWith("#") ? (
                 <a href={item.href} onClick={close} className={itemClass}>
                   {item.label}
                 </a>

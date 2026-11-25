@@ -1,3 +1,4 @@
+import { articles } from "@/content/articles";
 import { industries } from "@/content/industries";
 import { tasks } from "@/content/tasks";
 import { uk } from "@/content/uk";
@@ -34,4 +35,10 @@ export function industriesWith(serviceSlug: string): CardLink[] {
   return industries
     .filter((item) => item.services.some((link) => link.slug === serviceSlug))
     .map((item) => industryCard(item.slug));
+}
+
+export function articleCard(slug: string): CardLink {
+  const article = articles.find((entry) => entry.slug === slug);
+  if (!article) throw new Error(`No article with the address "${slug}"`);
+  return { href: `/blog/${article.slug}/`, title: article.title, text: article.card };
 }

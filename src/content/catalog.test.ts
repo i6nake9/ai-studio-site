@@ -106,3 +106,25 @@ test("the services index and the industries index have search texts", () => {
   }
   expect(catalogText.hub.metaTitle).not.toBe(catalogText.industriesIndex.metaTitle);
 });
+
+test("the tasks people search for have their own pages", () => {
+  const titles = tasks.map((task) => task.h1).join(" | ");
+  expect(titles).toMatch(/Telegram-бота/);
+  expect(titles).toMatch(/Instagram/);
+  expect(titles).toMatch(/1С/);
+  expect(titles).toMatch(/BAS/);
+  expect(titles).toMatch(/Checkbox/);
+  expect(titles).toMatch(/Парсинг/);
+  expect(titles).toMatch(/розсилк/i);
+  expect(titles).toMatch(/ТТН Нової Пошти й Укрпошти/);
+  expect(titles).toMatch(/ШІ-консультант/);
+  expect(titles).toMatch(/прайсів постачальників/);
+  expect(titles).toMatch(/Google Sheets/);
+  expect(titles).toMatch(/Комерційні пропозиції/);
+});
+
+test("small businesses and sales departments have their own pages", () => {
+  const slugs = industries.map((item) => item.slug);
+  expect(slugs).toContain("maliy-biznes");
+  expect(slugs).toContain("b2b-viddil-prodazhiv");
+});

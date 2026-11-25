@@ -6,11 +6,12 @@ import { LeadSection } from "@/components/sections/lead-section";
 import { FaqBand, IncludesAndFits, PricesBand } from "@/components/sections/service-blocks";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { articlesAbout, blogText } from "@/content/articles";
 import { catalogText } from "@/content/catalog";
 import { tasksOf } from "@/content/tasks";
 import type { TaskPage } from "@/content/types";
 import { uk } from "@/content/uk";
-import { industriesWith, serviceCard } from "@/lib/catalog";
+import { articleCard, industriesWith, serviceCard } from "@/lib/catalog";
 import { breadcrumbJsonLd, faqJsonLd, pageUrl, serviceJsonLd } from "@/lib/seo";
 
 import { siteConfig } from "../../../../site.config";
@@ -26,6 +27,7 @@ export function TaskView({ task }: { task: TaskPage }) {
   const parent = uk.solutions.items.find((item) => item.slug === task.parent);
   const faq = task.faq.map((item) => ({ question: item.question, answer: [item.answer] }));
   const industries = industriesWith(task.slug);
+  const reading = articlesAbout(task.slug).map((item) => articleCard(item.slug));
   const related = [
     ...tasksOf(task.parent)
       .filter((item) => item.slug !== task.slug)
@@ -133,6 +135,15 @@ export function TaskView({ task }: { task: TaskPage }) {
             <LinkCards items={related} className="mt-7" />
           </div>
         </section>
+
+        {reading.length ? (
+          <section className="band border-t border-border">
+            <div className="shell">
+              <h2 className="h2">{blogText.taskTitle}</h2>
+              <LinkCards items={reading} tone="card" className="mt-7" />
+            </div>
+          </section>
+        ) : null}
 
         <LeadSection />
       </main>

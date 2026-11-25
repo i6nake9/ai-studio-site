@@ -1,4 +1,5 @@
 import { siteConfig } from "../../site.config";
+import { searchTasks } from "./tasks-search";
 import type { TaskPage } from "./types";
 
 const { brand } = siteConfig;
@@ -1220,6 +1221,7 @@ export const tasks: TaskPage[] = [
       },
     ],
   },
+  ...searchTasks,
 ];
 
 export function findTask(slug: string) {

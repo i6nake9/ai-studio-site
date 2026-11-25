@@ -1,3 +1,6 @@
+import Link from "next/link";
+
+import { linkAccent } from "@/components/cta";
 import { CheckIcon } from "@/components/icons";
 import { FaqList } from "@/components/sections/faq";
 import { PriceCards } from "@/components/sections/process";
@@ -46,6 +49,9 @@ export function PricesBand({ plain = false }: { plain?: boolean }) {
         <div className="mt-8">
           <PriceCards />
         </div>
+        <Link href="/ciny/" className={`${linkAccent} mt-4`}>
+          {t.pricesMore} →
+        </Link>
       </div>
     </section>
   );

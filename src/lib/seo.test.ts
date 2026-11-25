@@ -1,12 +1,14 @@
 import { expect, test } from "vitest";
 
 import {
+  articleJsonLd,
   breadcrumbJsonLd,
   faqJsonLd,
   jsonLdScript,
   organizationJsonLd,
   pageUrl,
   serviceJsonLd,
+  websiteJsonLd,
 } from "./seo";
 
 test("pageUrl joins the site address and a path with single slashes and a trailing slash", () => {
@@ -96,4 +98,44 @@ test("jsonLdScript cannot close the script tag it is placed in and stays valid J
   const out = jsonLdScript(source);
   expect(out).not.toMatch(/<|>/);
   expect(JSON.parse(out)).toEqual(source);
+});
+
+test("articleJsonLd names the page, its date, language and the studio as author and publisher", () => {
+  const data = articleJsonLd({
+    headline: "Що таке ШІ-агент",
+    description: "Простими словами.",
+    url: "https://x.test/blog/a/",
+    published: "2026-11-25",
+    publisherName: "Nerutyna",
+    publisherUrl: "https://x.test/",
+    logo: "https://x.test/icon.svg",
+  });
+  expect(data).toEqual({
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: "Що таке ШІ-агент",
+    description: "Простими словами.",
+    inLanguage: "uk",
+    url: "https://x.test/blog/a/",
+    mainEntityOfPage: "https://x.test/blog/a/",
+    datePublished: "2026-11-25",
+    dateModified: "2026-11-25",
+    author: { "@type": "Organization", name: "Nerutyna", url: "https://x.test/" },
+    publisher: {
+      "@type": "Organization",
+      name: "Nerutyna",
+      url: "https://x.test/",
+      logo: { "@type": "ImageObject", url: "https://x.test/icon.svg" },
+    },
+  });
+});
+
+test("websiteJsonLd names the site, its address and language", () => {
+  expect(websiteJsonLd({ name: "Nerutyna", url: "https://x.test/" })).toEqual({
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Nerutyna",
+    url: "https://x.test/",
+    inLanguage: "uk",
+  });
 });

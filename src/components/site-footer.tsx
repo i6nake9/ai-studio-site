@@ -5,6 +5,7 @@ import { catalogText } from "@/content/catalog";
 import { industries } from "@/content/industries";
 import { uk } from "@/content/uk";
 import { telegramNick, telegramUrl } from "@/lib/contacts";
+import { navHref } from "@/lib/nav";
 
 import { siteConfig } from "../../site.config";
 
@@ -60,7 +61,7 @@ export function SiteFooter() {
             <ul className="mt-2">
               {t.studioLinks.map((item) => (
                 <li key={item.href}>
-                  <Link href={`/${item.href}`} className={linkClass}>
+                  <Link href={navHref(item.href, false)} className={linkClass}>
                     {item.label}
                   </Link>
                 </li>
