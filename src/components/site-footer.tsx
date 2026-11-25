@@ -1,6 +1,8 @@
 import Link from "next/link";
 
 import { BrandMark } from "@/components/brand-mark";
+import { catalogText } from "@/content/catalog";
+import { industries } from "@/content/industries";
 import { uk } from "@/content/uk";
 import { telegramNick, telegramUrl } from "@/lib/contacts";
 
@@ -16,7 +18,7 @@ export function SiteFooter() {
     // Bottom padding on phones leaves room for the bar fixed to the screen edge.
     <footer className="on-dark mt-auto border-t border-border pt-10 pb-28 text-[0.9375rem] leading-normal md:pb-8">
       <div className="shell">
-        <div className="grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-[1.3fr_1.2fr_1fr_1fr]">
+        <div className="grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-[1.2fr_1.2fr_1.2fr_1fr_1fr]">
           <div>
             <BrandMark />
             <p className="mt-3 max-w-xs text-muted-foreground">{t.tagline}</p>
@@ -28,6 +30,24 @@ export function SiteFooter() {
               {uk.solutions.items.map((item) => (
                 <li key={item.slug}>
                   <Link href={`/poslugy/${item.slug}/`} className={linkClass}>
+                    {item.short}
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <Link href="/poslugy/" className={`${linkClass} font-semibold !text-signal`}>
+                  {catalogText.footer.allServices} →
+                </Link>
+              </li>
+            </ul>
+          </nav>
+
+          <nav aria-label={catalogText.footer.industriesTitle}>
+            <p className="label !text-foreground">{catalogText.footer.industriesTitle}</p>
+            <ul className="mt-2">
+              {industries.map((item) => (
+                <li key={item.slug}>
+                  <Link href={`/galuzi/${item.slug}/`} className={linkClass}>
                     {item.short}
                   </Link>
                 </li>

@@ -12,6 +12,7 @@ import { Process } from "@/components/sections/process";
 import { RoiCalculator } from "@/components/sections/roi-calculator";
 import { Scenarios } from "@/components/sections/scenarios";
 import { Solutions } from "@/components/sections/solutions";
+import { TaskCatalog } from "@/components/sections/task-catalog";
 import { Trust } from "@/components/sections/trust";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -45,6 +46,7 @@ export default function HomePage() {
         <Trust />
         <Pains />
         <Solutions />
+        <TaskCatalog />
         <RoiCalculator />
         <Process />
         <Scenarios />

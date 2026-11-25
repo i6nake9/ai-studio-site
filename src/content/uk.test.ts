@@ -109,3 +109,9 @@ test("every service has its own address, search title, description and page text
 test("the form block says what happens after a lead is sent", () => {
   expect(uk.lead.steps.join(" ")).toMatch(/30–40 хвилин/);
 });
+
+test("the form asks for an e-mail and the privacy page says so", () => {
+  expect(uk.lead.fields.email.label).toMatch(/e-mail/i);
+  expect(uk.lead.invalidEmail.trim()).not.toBe("");
+  expect(uk.privacy.sections[0].text.join(" ")).toMatch(/e-mail/i);
+});

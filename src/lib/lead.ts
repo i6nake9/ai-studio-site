@@ -5,6 +5,8 @@ export interface LeadFields {
   name: string;
   /** Site address or the kind of business. */
   business: string;
+  /** Where the audit summary is sent. */
+  email: string;
   /** Telegram username or phone number. */
   contact: string;
 }
@@ -14,11 +16,14 @@ export interface LeadRoi {
   result: RoiResult;
 }
 
-export const FIELD_LIMITS = { name: 100, business: 200, contact: 100 } as const;
+export const FIELD_LIMITS = { name: 100, business: 200, email: 120, contact: 100 } as const;
 
-export type FieldErrors = Partial<Record<keyof LeadFields, "required">>;
+export type FieldErrors = Partial<Record<keyof LeadFields, "required" | "invalid">>;
 
-const FIELDS = ["name", "business", "contact"] as const;
+const FIELDS = ["name", "business", "email", "contact"] as const;
+
+/** Something@domain.zone without spaces: enough to catch typos, not to prove the mailbox exists. */
+const EMAIL = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
 
 /** Collapse whitespace (including line breaks) and cut to `limit` characters. */
 function clean(value: string, limit: number): string {
@@ -31,6 +36,7 @@ export function normalizeLead(fields: LeadFields): LeadFields {
   return {
     name: clean(fields.name, FIELD_LIMITS.name),
     business: clean(fields.business, FIELD_LIMITS.business),
+    email: clean(fields.email, FIELD_LIMITS.email),
     contact: clean(fields.contact, FIELD_LIMITS.contact),
   };
 }
@@ -41,6 +47,7 @@ export function validateLead(fields: LeadFields): FieldErrors {
   for (const field of FIELDS) {
     if (!normalized[field]) errors[field] = "required";
   }
+  if (normalized.email && !EMAIL.test(normalized.email)) errors.email = "invalid";
   return errors;
 }
 
@@ -68,6 +75,7 @@ export function buildLeadMessage(
     `Заявка на аудит з сайту ${brand}`,
     `Ім'я: ${lead.name}`,
     `Сайт або ніша: ${lead.business}`,
+    `E-mail: ${lead.email}`,
     `Контакт: ${lead.contact}`,
   ];
   if (roi) {

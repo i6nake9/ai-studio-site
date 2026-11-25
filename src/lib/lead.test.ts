@@ -14,28 +14,40 @@ import {
 } from "./lead";
 
 const plain = (s: string) => s.replace(/[  ]/g, " ");
-const lead = { name: "Олена", business: "shop.ua", contact: "@olena" };
+const lead = { name: "Олена", business: "shop.ua", email: "olena@shop.ua", contact: "@olena" };
 
 test("normalizeLead trims, flattens line breaks and cuts to the field limit", () => {
   expect(
     normalizeLead({
       name: "  Олена\n Коваль ",
       business: "x".repeat(500),
+      email: " Olena@Shop.ua\n",
       contact: " @olena ",
     }),
   ).toEqual({
     name: "Олена Коваль",
     business: "x".repeat(200),
+    email: "Olena@Shop.ua",
     contact: "@olena",
   });
 });
 
 test("empty and whitespace-only fields are reported as required", () => {
-  expect(validateLead({ name: " ", business: "", contact: "\n" })).toEqual({
+  expect(validateLead({ name: " ", business: "", email: " ", contact: "\n" })).toEqual({
     name: "required",
     business: "required",
+    email: "required",
     contact: "required",
   });
+});
+
+test("an e-mail that cannot be an address is reported as invalid", () => {
+  for (const email of ["olena", "olena@", "@shop.ua", "olena@shop", "ol ena@shop.ua", "olena@@shop.ua"]) {
+    expect(validateLead({ ...lead, email }), email).toEqual({ email: "invalid" });
+  }
+  for (const email of ["olena@shop.ua", "o.koval+audit@mail.shop.com.ua"]) {
+    expect(validateLead({ ...lead, email }), email).toEqual({});
+  }
 });
 
 test("a filled lead has no errors", () => {
@@ -44,7 +56,7 @@ test("a filled lead has no errors", () => {
 
 test("lead message without a calculation", () => {
   expect(buildLeadMessage(lead, "Nerutyna")).toBe(
-    "Заявка на аудит з сайту Nerutyna\nІм'я: Олена\nСайт або ніша: shop.ua\nКонтакт: @olena",
+    "Заявка на аудит з сайту Nerutyna\nІм'я: Олена\nСайт або ніша: shop.ua\nE-mail: olena@shop.ua\nКонтакт: @olena",
   );
 });
 
@@ -87,10 +99,10 @@ test("the word for employees follows Ukrainian plural rules", () => {
 
 test("message built from untrimmed fields is normalized first", () => {
   const msg = buildLeadMessage(
-    { name: " Олена\n", business: "y".repeat(900), contact: "@olena" },
+    { ...lead, name: " Олена\n", business: "y".repeat(900) },
     "Nerutyna",
   );
-  expect(msg.split("\n")).toHaveLength(4);
+  expect(msg.split("\n")).toHaveLength(5);
   expect(msg.length).toBeLessThan(400);
 });
 
@@ -186,9 +198,9 @@ test("an endpoint that never answers falls back after the timeout", async () => 
 });
 
 test("prepareLead reports every empty field and builds no message", () => {
-  expect(prepareLead({ name: " ", business: "", contact: "\n" }, "", "Nerutyna")).toEqual({
+  expect(prepareLead({ name: " ", business: "", email: "x", contact: "\n" }, "", "Nerutyna")).toEqual({
     status: "invalid",
-    errors: { name: "required", business: "required", contact: "required" },
+    errors: { name: "required", business: "required", email: "invalid", contact: "required" },
   });
 });
 

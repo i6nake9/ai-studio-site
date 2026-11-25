@@ -20,9 +20,9 @@ import { cn } from "@/lib/utils";
 import { siteConfig } from "../../../site.config";
 
 const t = uk.lead;
-const FIELDS = ["name", "business", "contact"] as const;
-const AUTOCOMPLETE = { name: "name", business: "organization", contact: "off" } as const;
-const EMPTY: LeadFields = { name: "", business: "", contact: "" };
+const FIELDS = ["name", "business", "email", "contact"] as const;
+const AUTOCOMPLETE = { name: "name", business: "organization", email: "email", contact: "off" } as const;
+const EMPTY: LeadFields = { name: "", business: "", email: "", contact: "" };
 
 type Screen =
   | { kind: "form" }
@@ -223,7 +223,8 @@ export function LeadForm({ roi, onSent }: LeadFormProps) {
             <input
               id={inputId}
               name={field}
-              type="text"
+              type={field === "email" ? "email" : "text"}
+              inputMode={field === "email" ? "email" : undefined}
               autoComplete={AUTOCOMPLETE[field]}
               maxLength={FIELD_LIMITS[field]}
               placeholder={t.fields[field].placeholder}
@@ -242,7 +243,7 @@ export function LeadForm({ roi, onSent }: LeadFormProps) {
             />
             {error ? (
               <p id={`${inputId}-error`} className="mt-1.5 text-sm text-destructive">
-                {t.required}
+                {error === "invalid" ? t.invalidEmail : t.required}
               </p>
             ) : null}
           </div>

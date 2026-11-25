@@ -7,7 +7,7 @@ export const siteConfig = {
   brand: "Nerutyna",
 
   /** Telegram username without "@". While empty, no Telegram buttons are shown. */
-  telegram: "",
+  telegram: "Crooklvl",
 
   /** Optional e-mail for people who do not use Telegram. */
   email: "",

@@ -172,9 +172,12 @@ export interface Dictionary {
     fields: {
       name: { label: string; placeholder: string };
       business: { label: string; placeholder: string };
+      email: { label: string; placeholder: string };
       contact: { label: string; placeholder: string };
     };
     required: string;
+    /** Shown under the e-mail field when the address has a typo. */
+    invalidEmail: string;
     submit: string;
     submitting: string;
     telegramDirect: string;
@@ -223,4 +226,49 @@ export interface Dictionary {
     sections: { title: string; text: string[] }[];
     back: string;
   };
+}
+
+/** A page about one concrete task, e.g. "TTN for Prom.ua orders with printing". */
+export interface TaskPage {
+  /** Address of the page: /poslugy/<slug>/. */
+  slug: string;
+  /** Slug of the direction (one of `solutions.items`) this task belongs to. */
+  parent: string;
+  /** Short name for links and breadcrumbs. */
+  short: string;
+  /** One sentence for cards that link to the page, up to 140 characters. */
+  card: string;
+  /** Title in the search result, up to 60 characters. */
+  metaTitle: string;
+  /** Description in the search result, 110–160 characters. */
+  metaDescription: string;
+  h1: string;
+  intro: string;
+  /** What goes wrong today, in the client's words. */
+  pains: string[];
+  /** How the automation works, step by step. */
+  steps: { title: string; text: string }[];
+  includes: string[];
+  integrations: string[];
+  outcome: string;
+  fits: string[];
+  faq: { question: string; answer: string }[];
+}
+
+/** A page for one type of business that links to the tasks relevant to it. */
+export interface IndustryPage {
+  /** Address of the page: /galuzi/<slug>/. */
+  slug: string;
+  short: string;
+  card: string;
+  metaTitle: string;
+  metaDescription: string;
+  h1: string;
+  intro: string;
+  pains: { title: string; text: string }[];
+  /** Links to task or direction pages, each with a reason in this industry's words. */
+  services: { slug: string; why: string }[];
+  /** Which process to take as the pilot. */
+  start: string;
+  faq: { question: string; answer: string }[];
 }
