@@ -52,10 +52,13 @@ test("every article has an address, search texts, a date and a direct answer fir
   }
 });
 
-test("every article is long enough to answer its question", () => {
+test("every article is a full answer: enough text, sections and questions", () => {
   for (const a of articles) {
     const words = collectStrings([a.summary, a.sections, a.faq]).join(" ").split(/\s+/).length;
-    expect(words, a.slug).toBeGreaterThanOrEqual(380);
+    expect(words, `${a.slug}: words`).toBeGreaterThanOrEqual(1200);
+    expect(a.sections.length, `${a.slug}: sections`).toBeGreaterThanOrEqual(6);
+    expect(a.faq.length, `${a.slug}: questions`).toBeGreaterThanOrEqual(5);
+    expect(a.updated, `${a.slug}: updated`).toBeDefined();
   }
 });
 
@@ -100,5 +103,31 @@ test("blog and pricing texts follow the same honesty rules as the rest of the si
   for (const text of collectStrings([articles, pricingPage, blogText])) {
     expect(text.trim(), "empty string").not.toBe("");
     for (const pattern of banned) expect(text).not.toMatch(pattern);
+  }
+});
+
+test("other articles under an article share its topic first", async () => {
+  const { relatedArticles } = await import("./articles");
+  for (const a of articles) {
+    const others = relatedArticles(a.slug, 3);
+    expect(others, a.slug).toHaveLength(3);
+    expect(others.map((o) => o.slug), a.slug).not.toContain(a.slug);
+    const shared = (o: (typeof articles)[number]) => o.related.filter((s) => a.related.includes(s)).length;
+    const scores = others.map(shared);
+    expect([...scores].sort((x, y) => y - x), a.slug).toEqual(scores);
+  }
+});
+
+test("section anchors are unique inside an article and dates of updates are not before publication", async () => {
+  const { anchorId } = await import("../lib/anchor");
+  for (const a of articles) {
+    const ids = a.sections.map((s) => anchorId(s.title));
+    expect(new Set(ids).size, a.slug).toBe(ids.length);
+    if (a.updated) expect(a.updated >= a.published, a.slug).toBe(true);
+    for (const s of a.sections) {
+      if (!s.table) continue;
+      expect(s.table.head.length, s.title).toBeGreaterThanOrEqual(2);
+      for (const row of s.table.rows) expect(row.length, s.title).toBe(s.table.head.length);
+    }
   }
 });

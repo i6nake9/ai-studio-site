@@ -299,13 +299,17 @@ export interface Article {
   card: string;
   /** Day of publication, YYYY-MM-DD. */
   published: string;
+  /** Day of the last real change of the text, YYYY-MM-DD. */
+  updated?: string;
   /** The answer itself in two to four sentences. Shown first, before the details. */
   summary: string;
   sections: {
     title: string;
     text?: string[];
     list?: string[];
-    /** Paragraphs after the list. */
+    /** A comparison table, shown after the list. Every row has as many cells as `head`. */
+    table?: { head: string[]; rows: string[][] };
+    /** Paragraphs after the list and the table. */
     after?: string[];
   }[];
   faq: { question: string; answer: string }[];

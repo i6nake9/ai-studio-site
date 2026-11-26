@@ -12,8 +12,9 @@ import { LeadSection } from "@/components/sections/lead-section";
 import { FaqBand } from "@/components/sections/service-blocks";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { articles, blogText, findArticle } from "@/content/articles";
+import { articles, blogText, findArticle, relatedArticles } from "@/content/articles";
 import { uk } from "@/content/uk";
+import { anchorId } from "@/lib/anchor";
 import { articleCard, serviceCard } from "@/lib/catalog";
 import { formatDateUk } from "@/lib/format";
 import { pageMeta } from "@/lib/page-meta";
@@ -40,7 +41,12 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
   const meta = pageMeta(`/blog/${article.slug}/`, article.metaTitle, article.metaDescription);
   return {
     ...meta,
-    openGraph: { ...meta.openGraph, type: "article", publishedTime: article.published },
+    openGraph: {
+      ...meta.openGraph,
+      type: "article",
+      publishedTime: article.published,
+      modifiedTime: article.updated ?? article.published,
+    },
   };
 }
 
@@ -57,10 +63,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const url = pageUrl(siteUrl, `/blog/${article.slug}/`);
   const faq = article.faq.map((item) => ({ question: item.question, answer: [item.answer] }));
   const related = article.related.map((service) => serviceCard(service));
-  const others = articles
-    .filter((item) => item.slug !== article.slug)
-    .slice(0, 3)
-    .map((item) => articleCard(item.slug));
+  const others = relatedArticles(article.slug, 3).map((item) => articleCard(item.slug));
+  const toc = article.sections.map((section) => ({ id: anchorId(section.title), title: section.title }));
 
   return (
     <>
@@ -70,6 +74,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           description: article.metaDescription,
           url,
           published: article.published,
+          modified: article.updated,
           publisherName: brand,
           publisherUrl: home,
           logo: `${siteUrl}/og.png`,
@@ -103,6 +108,13 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               <p className="mt-4 text-[0.90625rem] text-subtle">
                 {blogText.publishedLabel}{" "}
                 <time dateTime={article.published}>{formatDateUk(article.published)}</time>
+                {article.updated && article.updated !== article.published ? (
+                  <>
+                    {" · "}
+                    {blogText.updatedLabel}{" "}
+                    <time dateTime={article.updated}>{formatDateUk(article.updated)}</time>
+                  </>
+                ) : null}
                 {" · "}
                 {brand}
               </p>
@@ -117,8 +129,29 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                   </p>
                 </div>
 
+                <nav aria-labelledby="toc-title" className="mt-8">
+                  <p id="toc-title" className="label">
+                    {blogText.tocLabel}
+                  </p>
+                  <ol className="mt-3 space-y-1.5">
+                    {toc.map((item, i) => (
+                      <li key={item.id} className="flex gap-3 text-[1rem] leading-snug">
+                        <span aria-hidden="true" className="w-5 shrink-0 text-subtle tabular-nums">
+                          {i + 1}.
+                        </span>
+                        <a
+                          href={`#${item.id}`}
+                          className="font-medium underline decoration-border-strong underline-offset-4 hover:text-signal hover:decoration-signal"
+                        >
+                          {item.title}
+                        </a>
+                      </li>
+                    ))}
+                  </ol>
+                </nav>
+
                 {article.sections.map((section) => (
-                  <section key={section.title} className="mt-10">
+                  <section key={section.title} className="mt-10 scroll-mt-24" id={anchorId(section.title)}>
                     <h2 className="text-[1.4375rem] leading-tight font-bold tracking-[-0.02em] sm:text-[1.75rem]">
                       {section.title}
                     </h2>
@@ -142,6 +175,38 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                           </li>
                         ))}
                       </ul>
+                    ) : null}
+                    {section.table ? (
+                      <div className="mt-5 overflow-x-auto rounded-[0.875rem] border border-border">
+                        <table className="w-full min-w-[32rem] border-collapse text-left text-[0.9375rem] leading-snug">
+                          <thead className="bg-card">
+                            <tr>
+                              {section.table.head.map((cell) => (
+                                <th key={cell} scope="col" className="border-b border-border-strong px-4 py-3 font-semibold">
+                                  {cell}
+                                </th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {section.table.rows.map((row) => (
+                              <tr key={row.join("|")} className="border-t border-border first:border-t-0">
+                                {row.map((cell, i) =>
+                                  i === 0 ? (
+                                    <th key={i} scope="row" className="px-4 py-3 align-top font-semibold">
+                                      {cell}
+                                    </th>
+                                  ) : (
+                                    <td key={i} className="px-4 py-3 align-top">
+                                      {cell}
+                                    </td>
+                                  ),
+                                )}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     ) : null}
                     {section.after?.map((line) => (
                       <p key={line} className={cn(paragraph, "mt-4")}>
