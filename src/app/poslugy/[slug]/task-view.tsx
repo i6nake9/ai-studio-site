@@ -6,7 +6,7 @@ import { LeadSection } from "@/components/sections/lead-section";
 import { FaqBand, IncludesAndFits, PricesBand } from "@/components/sections/service-blocks";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { articlesAbout, blogText } from "@/content/articles";
+import { blogText, readingFor } from "@/content/articles";
 import { catalogText } from "@/content/catalog";
 import { tasksOf } from "@/content/tasks";
 import type { TaskPage } from "@/content/types";
@@ -27,7 +27,8 @@ export function TaskView({ task }: { task: TaskPage }) {
   const parent = uk.solutions.items.find((item) => item.slug === task.parent);
   const faq = task.faq.map((item) => ({ question: item.question, answer: [item.answer] }));
   const industries = industriesWith(task.slug);
-  const reading = articlesAbout(task.slug).map((item) => articleCard(item.slug));
+  const siblings = tasksOf(task.parent).map((item) => item.slug);
+  const reading = readingFor([task.slug, task.parent, ...siblings], 3).map((item) => articleCard(item.slug));
   const related = [
     ...tasksOf(task.parent)
       .filter((item) => item.slug !== task.slug)

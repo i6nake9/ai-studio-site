@@ -38,6 +38,15 @@ export default function HomePage() {
           logo: `${siteConfig.siteUrl}/og.png`,
           telegramUrl: telegramProfileUrl,
           email: siteConfig.email,
+          knowsAbout: [
+            "Автоматизація бізнес-процесів",
+            "ШІ-агенти",
+            "Чат-боти для Telegram та Instagram",
+            "Інтеграція CRM з Новою Поштою",
+            "Інтеграція з 1С і BAS",
+            "Моніторинг і парсинг цін конкурентів",
+            "Розпізнавання документів",
+          ],
         })}
       />
       <JsonLd data={websiteJsonLd({ name: siteConfig.brand, url: home })} />

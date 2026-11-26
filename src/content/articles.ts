@@ -72,3 +72,19 @@ export function relatedArticles(slug: string, count: number): Article[] {
     .slice(0, count)
     .map(({ article }) => article);
 }
+
+/**
+ * Articles to read under a service, direction or industry page. `pages` are the
+ * addresses the page is about, the page itself first: an article about it ranks
+ * above articles that only share one of the others.
+ */
+export function readingFor(pages: string[], count: number): Article[] {
+  const score = (article: Article) =>
+    pages.reduce((sum, page, i) => sum + (article.related.includes(page) ? (i === 0 ? 10 : 1) : 0), 0);
+  return articles
+    .map((article, index) => ({ article, index, score: score(article) }))
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .slice(0, count)
+    .map(({ article }) => article);
+}

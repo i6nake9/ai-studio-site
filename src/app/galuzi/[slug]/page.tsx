@@ -10,10 +10,11 @@ import { LeadSection } from "@/components/sections/lead-section";
 import { FaqBand, PricesBand } from "@/components/sections/service-blocks";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { blogText, readingFor } from "@/content/articles";
 import { catalogText } from "@/content/catalog";
 import { findIndustry, industries } from "@/content/industries";
 import { uk } from "@/content/uk";
-import { industryCard, serviceCard } from "@/lib/catalog";
+import { articleCard, industryCard, serviceCard } from "@/lib/catalog";
 import { pageMeta } from "@/lib/page-meta";
 import { breadcrumbJsonLd, faqJsonLd, pageUrl } from "@/lib/seo";
 
@@ -47,6 +48,10 @@ export default async function IndustryPage({ params }: IndustryPageProps) {
   const { siteUrl } = siteConfig;
   const faq = industry.faq.map((item) => ({ question: item.question, answer: [item.answer] }));
   const services = industry.services.map((link) => serviceCard(link.slug, link.why));
+  const reading = readingFor(
+    industry.services.map((link) => link.slug),
+    3,
+  ).map((item) => articleCard(item.slug));
   const others = industries
     .filter((item) => item.slug !== industry.slug)
     .map((item) => industryCard(item.slug));
@@ -132,6 +137,15 @@ export default async function IndustryPage({ params }: IndustryPageProps) {
             <LinkCards items={others} className="mt-7" />
           </div>
         </section>
+
+        {reading.length ? (
+          <section className="band border-t border-border">
+            <div className="shell">
+              <h2 className="h2">{blogText.taskTitle}</h2>
+              <LinkCards items={reading} tone="card" className="mt-7" />
+            </div>
+          </section>
+        ) : null}
 
         <LeadSection />
       </main>

@@ -7,11 +7,12 @@ import { ProcessSteps } from "@/components/sections/process";
 import { FaqBand, IncludesAndFits, PricesBand } from "@/components/sections/service-blocks";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { blogText, readingFor } from "@/content/articles";
 import { catalogText } from "@/content/catalog";
 import { tasksOf } from "@/content/tasks";
 import type { Dictionary } from "@/content/types";
 import { uk } from "@/content/uk";
-import { serviceCard } from "@/lib/catalog";
+import { articleCard, serviceCard } from "@/lib/catalog";
 import { breadcrumbJsonLd, faqJsonLd, pageUrl, serviceJsonLd } from "@/lib/seo";
 
 import { siteConfig } from "../../../../site.config";
@@ -30,6 +31,9 @@ export function DirectionView({ service }: { service: Direction }) {
     answer: [item.answer],
   }));
   const children = tasksOf(service.slug).map((task) => serviceCard(task.slug));
+  const reading = readingFor([service.slug, ...tasksOf(service.slug).map((task) => task.slug)], 3).map(
+    (item) => articleCard(item.slug),
+  );
   const others = uk.solutions.items
     .filter((item) => item.slug !== service.slug)
     .map((item) => serviceCard(item.slug));
@@ -101,6 +105,15 @@ export function DirectionView({ service }: { service: Direction }) {
             <LinkCards items={others} className="mt-7" />
           </div>
         </section>
+
+        {reading.length ? (
+          <section className="band border-t border-border">
+            <div className="shell">
+              <h2 className="h2">{blogText.taskTitle}</h2>
+              <LinkCards items={reading} tone="card" className="mt-7" />
+            </div>
+          </section>
+        ) : null}
 
         <LeadSection />
       </main>

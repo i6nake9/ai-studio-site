@@ -139,3 +139,42 @@ test("websiteJsonLd names the site, its address and language", () => {
     inLanguage: "uk",
   });
 });
+
+test("blogJsonLd lists the posts with their addresses and dates", async () => {
+  const { blogJsonLd } = await import("./seo");
+  const data = blogJsonLd({
+    name: "Блог",
+    url: "https://x.ua/blog/",
+    publisherName: "X",
+    posts: [{ headline: "A", url: "https://x.ua/blog/a/", published: "2026-11-25", modified: "2026-11-26" }],
+  });
+  expect(data["@type"]).toBe("Blog");
+  expect(data.inLanguage).toBe("uk");
+  expect(data.blogPost).toEqual([
+    {
+      "@type": "BlogPosting",
+      headline: "A",
+      url: "https://x.ua/blog/a/",
+      datePublished: "2026-11-25",
+      dateModified: "2026-11-26",
+    },
+  ]);
+});
+
+test("organizationJsonLd names the topics and a written contact channel when given", () => {
+  const data = organizationJsonLd({
+    name: "Nerutyna",
+    url: "https://x.test/",
+    description: "d",
+    logo: "https://x.test/og.png",
+    telegramUrl: "https://t.me/bot",
+    knowsAbout: ["ШІ-агенти", "Нова Пошта API"],
+  });
+  expect(data.knowsAbout).toEqual(["ШІ-агенти", "Нова Пошта API"]);
+  expect(data.contactPoint).toEqual({
+    "@type": "ContactPoint",
+    contactType: "customer support",
+    url: "https://t.me/bot",
+    availableLanguage: ["uk"],
+  });
+});

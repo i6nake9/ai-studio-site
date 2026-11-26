@@ -28,7 +28,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     page("/blog/", 0.7),
     ...articles.map((article) => ({
       ...page(`/blog/${article.slug}/`, 0.6),
-      lastModified: article.published,
+      lastModified: article.updated ?? article.published,
     })),
     { url: pageUrl(siteUrl, "/privacy/"), changeFrequency: "yearly", priority: 0.2 },
   ];

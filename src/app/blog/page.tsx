@@ -11,7 +11,7 @@ import { articles, blogText } from "@/content/articles";
 import { uk } from "@/content/uk";
 import { formatDateUk } from "@/lib/format";
 import { pageMeta } from "@/lib/page-meta";
-import { breadcrumbJsonLd, pageUrl } from "@/lib/seo";
+import { blogJsonLd, breadcrumbJsonLd, pageUrl } from "@/lib/seo";
 
 import { siteConfig } from "../../../site.config";
 
@@ -20,9 +20,22 @@ export const metadata: Metadata = pageMeta("/blog/", blogText.metaTitle, blogTex
 /** Index of the blog: every article as a row with its short description. */
 export default function BlogIndexPage() {
   const t = uk.servicePage;
-  const { siteUrl } = siteConfig;
+  const { siteUrl, brand } = siteConfig;
   return (
     <>
+      <JsonLd
+        data={blogJsonLd({
+          name: blogText.h1,
+          url: pageUrl(siteUrl, "/blog/"),
+          publisherName: brand,
+          posts: articles.map((article) => ({
+            headline: article.title,
+            url: pageUrl(siteUrl, `/blog/${article.slug}/`),
+            published: article.published,
+            modified: article.updated,
+          })),
+        })}
+      />
       <JsonLd
         data={breadcrumbJsonLd([
           { name: t.home, url: pageUrl(siteUrl, "/") },

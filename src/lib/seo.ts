@@ -88,6 +88,8 @@ interface OrganizationInput {
   logo: string;
   telegramUrl?: string | null;
   email?: string;
+  /** Topics the studio works on, for search engines and AI assistants. */
+  knowsAbout?: string[];
 }
 
 export function organizationJsonLd(org: OrganizationInput) {
@@ -100,7 +102,18 @@ export function organizationJsonLd(org: OrganizationInput) {
     description: org.description,
     logo: org.logo,
     areaServed: { "@type": "Country", name: "UA" },
-    ...(org.telegramUrl ? { sameAs: [org.telegramUrl] } : {}),
+    ...(org.telegramUrl
+      ? {
+          sameAs: [org.telegramUrl],
+          contactPoint: {
+            "@type": "ContactPoint",
+            contactType: "customer support",
+            url: org.telegramUrl,
+            availableLanguage: ["uk"],
+          },
+        }
+      : {}),
+    ...(org.knowsAbout?.length ? { knowsAbout: org.knowsAbout } : {}),
     ...(email ? { email } : {}),
   };
 }
@@ -154,5 +167,31 @@ export function websiteJsonLd(site: { name: string; url: string }) {
     name: site.name,
     url: site.url,
     inLanguage: "uk",
+  };
+}
+
+interface BlogInput {
+  name: string;
+  url: string;
+  publisherName: string;
+  posts: { headline: string; url: string; published: string; modified?: string }[];
+}
+
+/** The blog index: the list of posts, so search engines see them as one blog. */
+export function blogJsonLd(blog: BlogInput) {
+  return {
+    "@context": CONTEXT,
+    "@type": "Blog",
+    name: blog.name,
+    url: blog.url,
+    inLanguage: "uk",
+    publisher: { "@type": "Organization", name: blog.publisherName },
+    blogPost: blog.posts.map((post) => ({
+      "@type": "BlogPosting",
+      headline: post.headline,
+      url: post.url,
+      datePublished: post.published,
+      dateModified: post.modified ?? post.published,
+    })),
   };
 }
