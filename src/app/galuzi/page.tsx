@@ -50,6 +50,16 @@ export default function IndustriesIndexPage() {
             </Link>
           </div>
         </section>
+        <section className="band border-t border-border">
+          <div className="shell max-w-[48rem]">
+            <h2 className="h2">{text.moreTitle}</h2>
+            {text.more.map((line) => (
+              <p key={line} className="mt-4 text-[1.0625rem] leading-[1.65]">
+                {line}
+              </p>
+            ))}
+          </div>
+        </section>
         <LeadSection />
       </main>
       <SiteFooter />

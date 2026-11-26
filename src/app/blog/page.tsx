@@ -7,7 +7,7 @@ import { PageHero } from "@/components/page-hero";
 import { LeadSection } from "@/components/sections/lead-section";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { articles, blogText } from "@/content/articles";
+import { articles, blogText, findArticle } from "@/content/articles";
 import { uk } from "@/content/uk";
 import { formatDateUk } from "@/lib/format";
 import { pageMeta } from "@/lib/page-meta";
@@ -51,6 +51,31 @@ export default function BlogIndexPage() {
           intro={blogText.intro}
         />
 
+        <section className="band border-t border-border">
+          <div className="shell">
+            <h2 className="h2">{blogText.start.title}</h2>
+            <ul className="mt-6 grid gap-4 lg:grid-cols-3">
+              {blogText.start.items.map((item) => {
+                const article = findArticle(item.slug);
+                if (!article) return null;
+                return (
+                  <li key={item.slug}>
+                    <Link
+                      href={`/blog/${article.slug}/`}
+                      className="group block h-full rounded-[0.875rem] border border-border bg-card p-5 hover:border-signal"
+                    >
+                      <span className="block leading-snug font-bold group-hover:text-signal">{article.title}</span>
+                      <span className="mt-2 block text-[0.9375rem] leading-normal text-muted-foreground">
+                        {item.why}
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </section>
+
         <section className="band border-t border-border bg-card">
           <div className="shell">
             <ul className="border-b border-border-strong">
@@ -65,10 +90,10 @@ export default function BlogIndexPage() {
                     </h2>
                     <span className="leading-normal text-muted-foreground">{article.card}</span>
                     <time
-                      dateTime={article.published}
+                      dateTime={article.updated ?? article.published}
                       className="text-[0.90625rem] whitespace-nowrap text-subtle"
                     >
-                      {formatDateUk(article.published)}
+                      {formatDateUk(article.updated ?? article.published)}
                     </time>
                   </Link>
                 </li>

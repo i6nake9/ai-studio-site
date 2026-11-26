@@ -26,3 +26,8 @@ test("every service, direction and industry page gets something to read", () => 
     expect(readingFor(industry.services.map((s) => s.slug), 3).length, industry.slug).toBeGreaterThan(0);
   }
 });
+
+test("the blog's start-here list points at existing articles", async () => {
+  const { blogText, findArticle } = await import("./articles");
+  for (const item of blogText.start.items) expect(findArticle(item.slug), item.slug).toBeDefined();
+});
